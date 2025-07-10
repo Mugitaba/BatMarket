@@ -3,6 +3,7 @@ import requests
 import xmltodict
 import all_supers
 import save_results
+import os
 
 shufersal = all_supers.shufersal
 
@@ -47,48 +48,59 @@ def get_shufersal_items_files():
 
 
 def download_and_unzip_prices():
-    all_codes = {}
-    discounts = {}
     links = get_shufersal_items_files()
+    db_codes = get_existing_prices()
+    all_codes = parse_shufersal_prices({}, '', db_codes)
     for link in links:
         file_name = f'data_files/{link.replace("/", "_")}'
         download_file(link, file_name)
-        prices = xmltodict.parse(unzip_file(file_name), "utf-8")
+        prices_list = xmltodict.parse(unzip_file(file_name), "utf-8")
+        all_codes = parse_shufersal_prices(all_codes, link, prices_list)
+
+    return all_codes
+
+
+def get_existing_prices():
+    db_file_name = f'data_files/{shufersal.name}_historic_db.xml'
+    if os.path.exists(db_file_name):
+        print('found historic db, retrieving data')
+        with open(db_file_name, 'r') as f:
+            existing_data = f.read()
+            parsed_prices = xmltodict.parse(existing_data, "utf-8")
+    else:
+        print('no historic db found')
+        parsed_prices = {}
+    return parsed_prices
+
+
+def parse_shufersal_prices(all_codes, link, prices_list):
+    if 'promo' in link:
+        print('promo link')
+    else:
         try:
-            if 'Items' in prices['root']:
-                all_prices = prices['root']['Items']['Item']
+            if 'Items' in prices_list['root']:
+                all_prices = prices_list['root']['Items']['Item']
                 for price in all_prices:
                     if price['ItemCode'] in all_codes and price['PriceUpdateDate'] <= all_codes[price['ItemCode']][3]:
                         pass
                     else:
                         all_codes[price['ItemCode']] = [price['ItemName'], price['ItemCode'], price['ItemPrice'],
                                                         price['PriceUpdateDate']]
-            elif 'Promotions' in prices['root']:
-                all_prices = prices['root']['Promotions']['Promotion']
-                for promotion in all_prices:
-                    items = promotion['PromotionItems']['Item']
-                    for item in items:
-                        if 'promo' + item['ItemCode'] in all_codes and promotion['PriceUpdateDate'] <= \
-                                all_codes[item['ItemCode']][3]:
-                            pass
-                        else:
-                            all_codes['promo' + item['ItemCode']] = [promotion['PromotionDescription'],
-                                                                     item['ItemCode'], promotion['DiscountedPrice'],
-                                                                     promotion['PromotionUpdateDate']]
 
         except KeyError:
             print(f'error with this link: {link}')
             print('key Map:')
-            for key in prices['root'].keys():
+            for key in prices_list['root'].keys():
                 print(key)
-                if type(prices['root'][key]) == dict:
-                    print(f'{key}: {prices["root"][key].keys()}')
+                if type(prices_list['root'][key]) == dict:
+                    print(f'{key}: {prices_list["root"][key].keys()}')
         except TypeError:
             print(f'type error with this link: {link}')
             print('type Map:')
-            for key in prices['root'].keys():
+            for key in prices_list['root'].keys():
                 print(key)
                 print(type(prices['root'][key]))
+
     return all_codes
 
 

@@ -3,7 +3,7 @@ import gzip
 import os
 
 def download_file(some_url, file_name):
-    if os.path.exists(file_name):
+    if os.path.exists(file_name) and os.path.getsize(file_name) > 0:
         print(f'{file_name} already exists')
     else:
         if not os.path.exists('data_files'):
