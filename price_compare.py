@@ -78,9 +78,10 @@ def find_prices_for_all_codes():
 
 # for code in ['7290108503043','8445291426320','9322969000015']:
 #     print(get_prices_per_product(code))
-
+# print(get_prices_per_product('9720188060108'))
 
 find_prices_for_all_codes()
+
 
 
 
