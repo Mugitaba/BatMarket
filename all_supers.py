@@ -12,4 +12,7 @@ carfur = Supermarket('carfur', '5304', 'https://prices.carrefour.co.il/')
 all_supers_list = [shufersal, carfur]
 
 victory = Supermarket('victory', '097', 'https://laibcatalog.co.il/')
-all_supers_list = [shufersal, carfur, victory]
+
+wolt = Supermarket('wolt', 'None','https://wm-gateway.wolt.com/isr-prices/public/v1')
+
+all_supers_list = [shufersal, carfur, victory, wolt]

@@ -1,5 +1,6 @@
 import all_supers
 import os
+from save_results import cleanup_csv
 
 list_of_files = all_supers.all_supers_list
 
@@ -66,7 +67,8 @@ def find_prices_for_all_codes():
         f.write('\n')
         for code in codes:
             if codes[code][1] > 1:
-                f.write(codes[code][0])
+                product_name = cleanup_csv(codes[code][0])
+                f.write(product_name)
                 prices = get_prices_per_product(code)
                 for supermarket in all_supers.all_supers_list:
                     if supermarket.name in prices:
