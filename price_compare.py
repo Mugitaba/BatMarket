@@ -1,6 +1,6 @@
 import all_supers
 import os
-from save_results import cleanup_csv
+from save_results import save_logs, cleanup_csv
 
 list_of_files = all_supers.all_supers_list
 
@@ -23,7 +23,7 @@ def create_all_codes():
     for supermarket in all_supers.all_supers_list:
         supermarket_file = f'data_files/{supermarket.name}.csv'
         if os.path.exists(supermarket_file):
-            print(f'pulling list of codes from {supermarket.name}')
+            save_logs(f'pulling list of codes from {supermarket.name}')
             with open(supermarket_file, 'r') as f:
                 for line in f.readlines():
                     list_of_products = line.split(',')
@@ -53,7 +53,7 @@ def find_codes_with_multiple_prices():
                         multiple_prices_dict[list_of_products[1]][1] += 1
                         if multiple_prices_dict[list_of_products[1]][1] > 1:
                             multiple_prices_num += 1
-    print(f'there are {multiple_prices_num} codes with multiple prices')
+    save_logs(f'there are {multiple_prices_num} codes with multiple prices')
     return multiple_prices_dict
 
 
@@ -76,11 +76,6 @@ def find_prices_for_all_codes():
                     else:
                         f.write(', N/A')
                 f.write('\n')
-
-
-# for code in ['7290108503043','8445291426320','9322969000015']:
-#     print(get_prices_per_product(code))
-# print(get_prices_per_product('9720188060108'))
 
 find_prices_for_all_codes()
 
