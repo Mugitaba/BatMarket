@@ -1,5 +1,3 @@
-#TODO: add a mechanism ot check if the xml already existst and avoid downloading it
-#TODO: delete older xmls
 
 from all_supers import carfur
 import requests
