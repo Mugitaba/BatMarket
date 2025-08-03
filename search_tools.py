@@ -32,12 +32,15 @@ def search_by_name(names):
             item_name = parsed_list[0]
             print(f'{item_index} - {item_name}')
             item_index += 1
-    chosen_index = int(input('type item index: '))
-    print('\n\n')
-    chosen_item = all_matches[chosen_index]
-    for i in range(len(headers)):
-        print(f'{headers[i]}: {chosen_item[i]}')
-    print('\n\n')
+    if len(all_matches) == 0:
+        print('no matches found')
+    else:
+        chosen_index = int(input('type item index: '))
+        print('\n\n')
+        chosen_item = all_matches[chosen_index]
+        for i in range(len(headers)):
+            print(f'{headers[i]}: {chosen_item[i]}')
+        print('\n\n')
 
 def search():
     search_by, search_value = get_values()
