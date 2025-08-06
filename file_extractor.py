@@ -11,6 +11,7 @@ def listify(item):
     else:
         return [item]
 
+
 def check_or_make_dir_or_file(path, kind):
     all_paths = listify(path)
     for single_path in all_paths:
@@ -26,16 +27,29 @@ def check_or_make_dir_or_file(path, kind):
             save_logs(f'{single_path} exists')
 
 
+def prep_csv_files(gz_file_path):
+    check_or_make_dir_or_file(f'{gz_file_path}', 'dir')
+
+    for num in range(0, 10):
+        check_or_make_dir_or_file(
+            [f'{gz_file_path}/item_list_promo_0{num}.csv', f'{gz_file_path}/item_list_0{num}.csv'], 'file')
+
+    for num in range(10, 100):
+        check_or_make_dir_or_file([f'{gz_file_path}/item_list_promo_{num}.csv', f'{gz_file_path}/item_list_{num}.csv'],
+                                  'file')
+
 
 def download_file(some_url, file_name, path='data_files', extract=False):
     gz_file_name = f'{path}/{file_name}'
     xml_file_name = gz_file_name.replace('gz', 'xml')
+    save_logs(f'downloading {xml_file_name}')
     if os.path.exists(xml_file_name) and os.path.getsize(xml_file_name) > 0:
         save_logs(f'{xml_file_name} already exists')
     else:
         check_or_make_dir_or_file(path, 'dir')
         save_logs(f'downloading {some_url}')
         request = requests.get(some_url)
+        save_logs(f'response code: {request.status_code}')
         with open(gz_file_name, 'wb') as download_save_file:
             download_save_file.write(request.content)
         download_save_file.close()
@@ -98,30 +112,18 @@ def verify_and_add_price_date(root_datas, full_dict):
                 }
     return full_dict
 
-def save_price_list_to_file(root_datas,gz_file_path, promo=False, root_names_dict=None):
+def save_price_list_to_file(root_datas,gz_file_path, promo):
     n = 0
-    if not root_names_dict:
-        save_logs('using default names dict')
-        names_dict = {
-            'ItemCode': 'ItemCode',
-            'ItemName': 'ItemName',
-            'ItemPrice': 'ItemPrice',
-            'PriceUpdateDate': 'PriceUpdateDate',
-            'minNumberOfItems': 'minNumberOfItems'
-        }
-    else:
-        save_logs('using custom names dict')
-        names_dict = root_names_dict
     root_datas = listify(root_datas)
     for root_data in root_datas:
         n += 1
         temp_dict = {}
         save_logs(f'running {n} of {len(root_datas)} codes for the same root')
 
-        item_code = root_data[names_dict['ItemCode']].replace(',', '')
-        item_name = root_data[names_dict['ItemName']].replace(',', '')
-        item_price = root_data[names_dict['ItemPrice']].replace(',', '')
-        item_date = root_data[names_dict['PriceUpdateDate']].replace(',', '')
+        item_code = root_data['ItemCode'].replace(',', '')
+        item_name = root_data['ItemName'].replace(',', '')
+        item_price = root_data['ItemPrice'].replace(',', '')
+        item_date = root_data['PriceUpdateDate'].replace(',', '')
         list_index = item_code[-2:]
         temp_file = f'{gz_file_path}/temp_item_list.csv'
         os.remove(temp_file) if os.path.exists(temp_file) else None
@@ -130,7 +132,7 @@ def save_price_list_to_file(root_datas,gz_file_path, promo=False, root_names_dic
 
         if promo:
             price_save_file = f'{gz_file_path}/item_list_promo_{list_index}.csv'
-            item_min = str(int(float((root_data[names_dict['minNumberOfItems']].replace(',', '')))))
+            item_min = str(int(float((root_data['minNumberOfItems'].replace(',', '')))))
         else:
             price_save_file = f'{gz_file_path}/item_list_{list_index}.csv'
             item_min = '1'
@@ -156,7 +158,6 @@ def save_price_list_to_file(root_datas,gz_file_path, promo=False, root_names_dic
 
             for key, value in temp_dict.items():
                 file_to_update.write(f'{key},{value[0]},{value[1]},{value[2]},{value[3]}\n')
-
 
 def unify_promos_and_prices(gz_file_path):
     # Results table headers: Code, Name, Price, DiscountPricePerTotal, ItemsPerDiscount, DiscountPricePerItem, UpdateDate, FileUpdateDate

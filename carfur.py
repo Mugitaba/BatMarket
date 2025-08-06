@@ -1,9 +1,11 @@
+#TODO: add a mechanism ot check if the xml already existst and avoid downloading it
+#TODO: delete older xmls
 
 from all_supers import carfur
 import requests
 from save_results import save_logs
 import datetime
-from file_extractor import download_file, convert_date, save_price_list_to_file, listify, check_or_make_dir_or_file, unify_promos_and_prices
+from file_extractor import download_file, convert_date, save_price_list_to_file, listify, prep_csv_files, unify_promos_and_prices
 import os
 import xmltodict
 
@@ -25,11 +27,7 @@ promo_keys_dict = {
     'ItemName': 'PromotionDescription'
 }
 
-for num in range(0, 10):
-    check_or_make_dir_or_file([f'{gz_file_path}/item_list_promo_0{num}.csv', f'{gz_file_path}/item_list_0{num}.csv'], 'file')
-
-for num in range(10, 100):
-    check_or_make_dir_or_file([f'{gz_file_path}/item_list_promo_{num}.csv', f'{gz_file_path}/item_list_{num}.csv'], 'file')
+prep_csv_files (gz_file_path)
 
 def get_response(file_url):
     raw_site = requests.get(file_url)
