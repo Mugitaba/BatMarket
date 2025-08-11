@@ -1,5 +1,5 @@
 from file_extractor import download_file, check_or_make_dir_or_file, save_price_list_to_file, listify, \
-    convert_date, prep_csv_files, unify_promos_and_prices
+    convert_date, prep_csv_files, unify_promos_and_prices, get_list_of_xmls
 import requests
 import xmltodict
 import all_supers
@@ -80,10 +80,8 @@ def unpack_prices():
 def get_perm_prices():
     unpack_prices()
     is_promo = False
-    full_xml_file_list = set(os.listdir(gz_file_path))
+    full_xml_file_list = get_list_of_xmls(gz_file_path)
     for xml_file in full_xml_file_list:
-        if not xml_file.endswith('.xml') or ('price' not in xml_file.lower() and 'promo' not in xml_file.lower()):
-            continue
         full_xml_file_path = f'{gz_file_path}/{xml_file}'
         save_logs(f'working on {xml_file}')
         with open(full_xml_file_path, 'r') as f:

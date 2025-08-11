@@ -5,8 +5,8 @@ from all_supers import carfur
 import requests
 from save_results import save_logs
 import datetime
-from file_extractor import download_file, convert_date, save_price_list_to_file, listify, prep_csv_files, unify_promos_and_prices
-import os
+from file_extractor import (download_file, convert_date, save_price_list_to_file, listify, prep_csv_files,
+                            unify_promos_and_prices, get_list_of_xmls, parse_data_per_xml_file)
 import xmltodict
 
 # Preset vars:
@@ -27,7 +27,7 @@ promo_keys_dict = {
     'ItemName': 'PromotionDescription'
 }
 
-prep_csv_files (gz_file_path)
+prep_csv_files(gz_file_path)
 
 def get_response(file_url):
     raw_site = requests.get(file_url)
@@ -64,15 +64,9 @@ def get_perm_prices():
     download_and_extract_file()
     is_promo = False
 
-    full_xml_file_list = set(os.listdir(gz_file_path))
+    full_xml_file_list = get_list_of_xmls(gz_file_path)
     for xml_file in full_xml_file_list:
-        if '.xml' not in xml_file:
-            continue
-        full_xml_file_path = f'{gz_file_path}/{xml_file}'
-        save_logs(f'working on {xml_file}')
-        with open(full_xml_file_path, 'r') as f:
-            data = f.read()
-        xml_data = xmltodict.parse(data)
+        xml_data = parse_data_per_xml_file(gz_file_path, xml_file)
         if 'Items' in xml_data['Root']:
             if 'Item' in xml_data['Root']['Items']:
                 root = xml_data['Root']['Items']['Item']

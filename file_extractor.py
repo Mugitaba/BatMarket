@@ -4,6 +4,7 @@ import gzip
 import os
 from barcode_db import todays_date
 from save_results import save_logs
+import xmltodict
 
 def listify(item):
     if isinstance(item, list):
@@ -61,6 +62,7 @@ def download_file(some_url, file_name, path='data_files', extract=False):
             save_logs(f'extracted {xml_file_name}')
             os.remove(gz_file_name)
             save_logs(f'deleted {gz_file_name}')
+    return xml_file_name
 
 
 def unzip_file(some_file):
@@ -73,7 +75,7 @@ def unzip_file(some_file):
             with gzip.open(some_file, 'rt', encoding='utf-8-sig') as unzipped:
                 new_data = unzipped.read()
             new_file_name = some_file.replace('gz', 'xml')
-            with open(new_file_name, 'w') as zip_save_file:
+            with open(new_file_name, 'w',  encoding='utf-8') as zip_save_file:
                 zip_save_file.write(new_data)
             return new_file_name
         except gzip.BadGzipFile:
@@ -89,10 +91,15 @@ def convert_date(date, time=None):
         combined_datetime += f' {time}'
     if len(combined_datetime) == 16:
         combined_datetime += ':00'
-    try:
-        return datetime.datetime.strptime(combined_datetime, '%Y-%m-%d %H:%M:%S')
-    except ValueError:
-        print(combined_datetime)
+    elif '.' in combined_datetime:
+        combined_datetime = combined_datetime.split('.')[0].replace('T', ' ')
+    combined_datetime = combined_datetime.replace('/', '-')
+    date_elements = combined_datetime.split('-')
+    if len(date_elements[0]) != 4 or len(date_elements[1]) != 2 or int(date_elements[1]) > 12:
+        save_logs(f'bad date format: {combined_datetime}, should be: %Y-%m-%d %H:%M:%S')
+        raise ValueError
+    return datetime.datetime.strptime(combined_datetime, '%Y-%m-%d %H:%M:%S')
+
 
 def verify_and_add_price_date(root_datas, full_dict):
     n = 0
@@ -132,12 +139,16 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
 
         if promo:
             price_save_file = f'{gz_file_path}/item_list_promo_{list_index}.csv'
-            item_min = str(int(float((root_data['minNumberOfItems'].replace(',', '')))))
+            if not root_data['minNumberOfItems']:
+                item_min = '1'
+            else:
+                item_min = str(int(float((root_data['minNumberOfItems'].replace(',', '')))))
         else:
             price_save_file = f'{gz_file_path}/item_list_{list_index}.csv'
             item_min = '1'
 
         with open(price_save_file, 'r+', encoding='utf-8') as file_to_update:
+            save_logs(f'parsing lines for {price_save_file}')
             list_of_lines = file_to_update.read().split('\n')
             for line in list_of_lines:
                 break_line = line.split(',')
@@ -155,6 +166,7 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
 
 
             file_to_update.seek(0)
+            file_to_update.truncate()
 
             for key, value in temp_dict.items():
                 file_to_update.write(f'{key},{value[0]},{value[1]},{value[2]},{value[3]}\n')
@@ -168,9 +180,9 @@ def unify_promos_and_prices(gz_file_path):
         price_file = f'{gz_file_path}/item_list_{num}.csv'
         unified_file = f'{gz_file_path}/unified_item_list_{num}.csv'
         check_or_make_dir_or_file([promo_file, price_file, unified_file], 'file')
-        with open(price_file, 'r') as data_from_price_file:
+        with open(price_file, 'r', encoding='utf-8') as data_from_price_file:
             price_data = data_from_price_file.read()
-        with open(promo_file, 'r') as data_from_promo_file:
+        with open(promo_file, 'r', encoding='utf-8') as data_from_promo_file:
             promo_data = data_from_promo_file.read()
 
         for price_line in price_data.split('\n'):
@@ -204,3 +216,19 @@ def unify_promos_and_prices(gz_file_path):
         data_from_price_file.close()
         data_from_promo_file.close()
         unified_data.clear()
+
+def get_list_of_xmls(gz_file_path):
+    full_set = set()
+    full_xml_file_list = set(os.listdir(gz_file_path))
+    for xml_file in full_xml_file_list:
+        if xml_file.endswith('.xml'):
+            full_set.add(xml_file)
+    return full_set
+
+def parse_data_per_xml_file(gz_file_path, xml_file):
+    full_xml_file_path = f'{gz_file_path}/{xml_file}'
+    save_logs(f'working on {xml_file}')
+    with open(full_xml_file_path, 'r', encoding='utf-8') as f:
+        data = f.read()
+    xml_data = xmltodict.parse(data)
+    return xml_data
