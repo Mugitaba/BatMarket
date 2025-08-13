@@ -1,28 +1,46 @@
-from barcode_db import todays_date
-from file_extractor import unzip_file, download_file, map_price_data
+from file_extractor import download_file, check_or_make_dir_or_file, save_price_list_to_file, listify, \
+    convert_date, prep_csv_files, unify_promos_and_prices, get_list_of_xmls
 import requests
 import xmltodict
 import all_supers
-from save_results import save_results, save_logs
+from save_results import save_logs
 import os
+import datetime
 
 shufersal = all_supers.shufersal
 
-file_name = 'data_files/temp_mame'
-store_list_file_name = 'data_files/shuersal_list_of_stores.xml'
-
+file_name = 'temp_mame'
+gz_file_path = 'data_files/shufersal'
+store_list_file_name = 'shuersal_list_of_stores.gz'
 shufersal_store_id_url = f"https://prices.shufersal.co.il/FileObject/UpdateCategory?catID=5&storeId=0"
+
+promo_keys_dict = {
+    'PriceUpdateDate': 'PromotionUpdateDate',
+    'startDate': 'PromotionStartDate',
+    'startTime': 'PromotionStartHour',
+    'endDate': 'PromotionEndDate',
+    'endTime': 'PromotionEndHour',
+    'multipleAllowed': 'AllowMultipleDiscounts',
+    'minNumberOfItems': 'MinQty',
+    'ItemPrice': 'DiscountedPrice',
+    'ItemName': 'PromotionDescription',
+}
+
+prep_csv_files(gz_file_path)
 
 def clean_link(link):
     return link.replace('&amp;', '&')
 
 def get_list_of_shufersal_stores():
+    full_store_list_file_path = gz_file_path + '/' + store_list_file_name
     shufersal_store_list = requests.get(shufersal_store_id_url).text
     shufersal_store_list_download_link = [x for x in shufersal_store_list.split("\n") if "a href" in x][0].split('"')[1]
-    download_file(clean_link(shufersal_store_list_download_link), store_list_file_name)
-    store_list_file = unzip_file(store_list_file_name)
-    dict_list_of_stores = xmltodict.parse(store_list_file, "utf-8")['asx:abap']['asx:values']['STORES']['STORE']
-    return dict_list_of_stores
+    clean_download_link = clean_link(shufersal_store_list_download_link)
+    download_file(clean_download_link, store_list_file_name, gz_file_path, extract=True)
+    with open(full_store_list_file_path.replace('gz','xml'), 'r', encoding='utf-8') as store_list_file:
+        dict_list_of_stores = xmltodict.parse(store_list_file.read(), "utf-8")
+        parsed_list_of_stores = dict_list_of_stores['asx:abap']['asx:values']['STORES']['STORE']
+        return parsed_list_of_stores
 
 def get_shufersal_online_branch_code():
     shufersal_store_id_dict = {}
@@ -50,55 +68,63 @@ def get_shufersal_items_files():
 
 
 def unpack_prices():
-    n = 0
     links = get_shufersal_items_files()
-    db_codes = get_existing_prices()
-    all_codes = parse_shufersal_prices({}, '', db_codes)
     for link in links:
-        n += 1
-        xml_file_name = f'data_files/shufersal_xml_{todays_date}_{n}.xml'
-        all_codes = parse_shufersal_prices(all_codes, link, xml_file_name)
-
-    return all_codes
-
-
-def get_existing_prices():
-    db_file_name = f'data_files/{shufersal.name}_historic_db.xml'
-    if os.path.exists(db_file_name):
-        save_logs('found historic db, retrieving data')
-        with open(db_file_name, 'r') as f:
-            existing_data = f.read()
-            parsed_prices = xmltodict.parse(existing_data, "utf-8")
-    else:
-        save_logs('no historic db found')
-        parsed_prices = {}
-    return parsed_prices
+        clean_link = link.split('.net/')[1].split('?')[0].replace('/', '_').replace('-', '_')
+        clean_file_name = f'shufersal_{clean_link}'
+        save_logs(f'prepping file: {clean_link}')
+        check_or_make_dir_or_file(gz_file_path, 'dir')
+        download_file(link, clean_file_name, path=gz_file_path, extract=True)
 
 
-def parse_shufersal_prices(all_codes, link, xml_file_name):
-
-    if 'promo' in link.lower():
-        save_logs('promo link')
-    elif '/Price' in link:
-        save_logs('fixed price link')
-        download_file(link, xml_file_name)
-        xml_data = xmltodict.parse(unzip_file(xml_file_name), "utf-8")
-        if 'Promotions' in xml_data['Root'].keys():
-            pass
+def get_perm_prices():
+    unpack_prices()
+    is_promo = False
+    full_xml_file_list = get_list_of_xmls(gz_file_path)
+    for xml_file in full_xml_file_list:
+        full_xml_file_path = f'{gz_file_path}/{xml_file}'
+        save_logs(f'working on {xml_file}')
+        with open(full_xml_file_path, 'r') as f:
+            data = f.read()
+        xml_data = xmltodict.parse(data)
+        save_logs(f'parsing {xml_file}')
+        if 'Items' in xml_data['root'] and 'Item' in xml_data['root']['Items']:
+            save_logs(f'{xml_file} was identified as a price file')
+            root = xml_data['root']['Items']['Item']
+            save_price_list_to_file(root, gz_file_path, promo=is_promo)
         else:
-            raw_data = xml_data['Root']['Items']['Item']
-            all_prices = map_price_data(link, raw_data,shufersal.name)
-            for price in all_prices:
-                if price in all_codes and all_prices[price][3] <= all_codes[price][3]:
-                    pass
-                else:
-                    all_codes[price] = all_prices[price]
-    else:
-        save_logs('could not determine the link type')
-
-    return all_codes
+            save_logs(f'could not find price root, will try promotion root for {xml_file}')
+            if 'Promotions' in xml_data['root']:
+                if 'Promotion' in xml_data['root']['Promotions'].keys():
+                    save_logs(f'{xml_file} was identified as a promotion file')
+                    get_promo_prices(xml_data['root']['Promotions']['Promotion'], xml_file)
 
 
-prices = unpack_prices()
+def get_promo_prices(promotion_root, xml_file):
+    roots = listify(promotion_root)
+    n = 0
+    for promotion in roots:
+        temp_dict = {}
+        n += 1
+        all_keys_present = True
+        for key, value in promo_keys_dict.items():
+            if value not in promotion.keys():
+                save_logs(f'{n} root in {xml_file} does not have {value}')
+                all_keys_present = False
+                break
+            temp_dict[key] = promotion[value]
 
-save_results(shufersal.name, prices)
+        if all_keys_present and 'startDate' in temp_dict.keys() and 'endDate' in temp_dict.keys() and 'startTime' in temp_dict.keys() and 'endTime' in temp_dict.keys():
+            if convert_date(temp_dict['startDate'], temp_dict['startTime']) < datetime.datetime.now() < convert_date(temp_dict['endDate'], temp_dict['endTime']):
+                save_logs('dates are valid')
+                items_root = promotion['PromotionItems']['Item']
+                items_root = listify(items_root)
+                for item_root in items_root:
+                    if 'ItemCode' in item_root.keys():
+                        for item_code in listify(item_root['ItemCode']):
+                            promos_dict = temp_dict.copy()
+                            promos_dict['ItemCode'] = item_code
+                            save_price_list_to_file(promos_dict, gz_file_path, promo=True)
+
+get_perm_prices()
+unify_promos_and_prices(gz_file_path)
