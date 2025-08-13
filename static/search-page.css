@@ -1,0 +1,114 @@
+body {
+    font-family: Arial;
+}
+
+table {
+    margin: auto;
+    margin-top: 10px;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+}
+
+p, form {
+    text-align: right;
+}
+
+h1 {
+    margin-bottom: 40px;
+}
+
+input {
+    text-align: right;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button {
+    border-radius: 50px;
+}
+
+td, th {
+    width: 15%;
+    height: 5%px;
+    text-align: center;
+}
+
+table, td, th {
+    border: 2px dotted blue;
+}
+
+.header-picture {
+    width: 20%;
+}
+
+.header-div {
+    background-color: rgb(255, 250, 230);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-site-content, form {
+    border: 1px dotted grey;
+    margin-left: 5%; 
+    margin-right: 10%; 
+}
+
+.submit-search-button {
+    background-color: darkolivegreen;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+}
+
+.store-logo {
+    width: 10%;
+}
+
+.top-search-bar {
+    background-color: chocolate;
+    padding: 5px;
+    border: 2px solid grey;
+}
+
+.carfur{
+    background-color: rgb(243, 200, 230);
+}
+
+.wolt{
+    background-color: rgb(221, 246, 255);
+}
+
+.shufersal{
+    background-color: rgb(250, 203, 203);
+}
+
+.victory{
+    background-color: rgb(255, 246, 192);
+}
+
+.product-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  td, th {
+    padding: 4px;
+    font-size: 0.30rem;
+  }
+  .store-logo {
+    max-width: 25px;
+  }
+  .main-site-content{
+    width: 70%;
+    overflow-x: auto;
+  }
+}

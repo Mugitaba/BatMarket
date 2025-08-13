@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="eng">
+	<head>
+		<title>Codes and Stores</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='search-page.css') }}">
+	</head>
+	<body>
+		<div class="header-div">
+			<img src="{{ url_for('static', filename='batmarket_icon.png') }}" class="header-picture">
+		</div>
+		<h1>חיפוש מחירים בסופרמרקטים אונליין</h1>
+		<form id="Bar-code-form" class="top-search-bar" accept-charset="utf-8">
+			<button class="js-submit-search-button submit-search-button" type="submit">חיפוש</button>
+			<input type= "text" placeholder="כאן מחפשים.ות" class="js-search-box search-box" >
+		</form>
+		<div class="main-site-content">
+			<table>
+				<thead>
+					<tr>
+						<th>
+							מס מוצרים להנחה
+							<input type="text" placeholder="מספר מוצרים" class="js-internal-minQty">
+						</th>
+						<th>
+							מחיר הנחה
+							<input type="text" placeholder="מחיר הנחה" class="js-internal-minQty">
+						</th>
+						<th>
+							מחיר
+							<input type="text" placeholder="מחיר" class="js-internal-minQty">
+						</th>
+						<th>
+							חנות
+							<input type="text" placeholder="חנות" class="js-internal-minQty">
+						</th>
+						<th>
+							ברקוד
+							<input type="text" placeholder="ברקוד" class="js-internal-minQty">
+						</th>
+						<th>
+							מוצר
+							<input type="text" placeholder="מוצר" class="js-internal-minQty">
+						</th>
+					</tr>
+				</thead>
+				<tbody class="js-prices-table"></tbody>
+			</table>
+		</div>
+		<footer>
+			© Omer Cohen Gil 2025
+		</footer>
+		<script src="{{ url_for('static', filename='searchPage.js') }}"></script>
+	</body>
+</html>
+
