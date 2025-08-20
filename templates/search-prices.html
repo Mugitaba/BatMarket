@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Codes and Stores</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='search-page.css') }}">
+	</head>
+	<body>
+		<div class="full-top-section">
+			<div class="left-top-section">
+				<div class="sidebar-container">
+					<img src="{{ url_for('static', filename='shopping_list_list.png') }}" class="sidebar-visible">
+					<ul class="sidebar-list-item js-sidebar-list-item"></ul>
+					<button class="view-shopping-list">לרשימת הקניות שלי</button>
+				</div>
+			</div>
+			<div class="right-top-section">
+				<div class="header-div">
+					<img src="{{ url_for('static', filename='batmarket_icon.png') }}" class="header-picture">
+				</div>
+				<h1>חיפוש מחירים בסופרמרקטים אונליין</h1>
+				<div class="top-full-bar">
+					<form id="Bar-code-form" class="top-search-box" accept-charset="utf-8">
+						<img src="/static/animations/spinner.gif" class="js-loading-image unloading-image" id="spinnerImage">
+						<button class="js-submit-search-button submit-search-button" type="submit">חיפוש</button>
+						<input type= "text" placeholder="כאן מחפשים.ות" class="js-search-box search-box" list="possible-products">
+					</form>
+				</div>
+				<datalist id="possible-products" class="js-possible-products">
+					<option value="התחילו להקיש על מנת לקבל הצעות למוצרים"></option>
+				</datalist>
+			</div>
+		</div>
+		<div class="main-site-content">
+			<table>
+				<thead>
+					<tr>
+						<th></th>
+						<th>
+							תנאי המבצע
+							<!-- <input type="text" placeholder="מספר מוצרים" class="js-internal-minQty"> -->
+						</th>
+						<th>
+							מחיר מבצע
+							<!-- <input type="text" placeholder="מחיר הנחה" class="js-internal-minQty"> -->
+						</th>
+						<th>
+							מחיר
+							<!-- <input type="text" placeholder="מחיר" class="js-internal-minQty"> -->
+						</th>
+						<th>
+							חנות
+							<!-- <input type="text" placeholder="חנות" class="js-internal-minQty"> -->
+						</th>
+						<th>
+							ברקוד
+							<!-- <input type="text" placeholder="ברקוד" class="js-internal-minQty"> -->
+						</th>
+						<th>
+							מוצר
+							<!-- <input type="text" placeholder="מוצר" class="js-internal-minQty"> -->
+						</th>
+					</tr>
+				</thead>
+				<tbody class="js-prices-table"></tbody>
+			</table>
+		</div>
+		<footer>
+			<p class="rights-reseved">© Omer Cohen Gil 2025</p>
+			<a href="/backend-stuff">For internal configurations</a>
+		</footer>
+		<script type="module" src="{{ url_for('static', filename='searchPage.js') }}"></script>
+	</body>
+</html>
+
