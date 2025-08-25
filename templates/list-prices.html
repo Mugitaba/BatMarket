@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="heb">
+	<head>
+		<title>רשימת קניות</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='search-page.css') }}">
+	</head>
+	<body>
+        <div class="right-top-section">
+            <div class="header-div">
+                <img src="{{ url_for('static', filename='batmarket_icon.png') }}" class="header-picture">
+            </div>
+            <h1 class="right-to-left">המוצרים שנבחרו:</h1>
+            <div class="top-full-bar">
+            </div>
+            <datalist id="possible-products" class="js-possible-products">
+                <option value="התחילו להקיש על מנת לקבל הצעות למוצרים"></option>
+            </datalist>
+        </div>
+		<div class="main-site-content">
+			<table>
+				<thead>
+					<tr>
+                        <th>
+							וולט מרקט
+							 <img src="/static/logos/wolt.png" class="store-logo">
+						</th>
+						<th>
+							ויקטורי
+							 <img src="/static/logos/victory.png" class="store-logo">
+						</th>
+						<th>
+							שופרסל
+							 <img src="/static/logos/shufersal.png" class="store-logo">
+						</th>
+						<th>
+							קרפור
+							 <img src="/static/logos/carfur.png" class="store-logo">
+						</th>
+						<th>
+							מוצר
+						</th>
+					</tr>
+				</thead>
+				<tbody class="js-prices-table"></tbody>
+			</table>
+		</div>
+		<p class="missing-items-section right-to-left"></p>
+		<footer>
+            <a href="/">לחיפוש מוצרים נוספים</a>
+			<p class="rights-reseved">© Omer Cohen Gil 2025</p>
+		</footer>
+		<script type="module" src="{{ url_for('static', filename='listPrices.js') }}"></script>
+	</body>
+</html>
+
