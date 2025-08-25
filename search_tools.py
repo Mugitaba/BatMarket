@@ -5,6 +5,7 @@ def get_values():
     print('\n\n\n\n')
     return search_by, search_value
 
+
 with open(f'data_files/price_compare.csv', 'r') as dataset:
     item_list = dataset.read().split('\n')
 

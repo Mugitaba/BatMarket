@@ -82,22 +82,24 @@ def get_perm_prices():
     is_promo = False
     full_xml_file_list = get_list_of_xmls(gz_file_path)
     for xml_file in full_xml_file_list:
-        full_xml_file_path = f'{gz_file_path}/{xml_file}'
-        save_logs(f'working on {xml_file}')
-        with open(full_xml_file_path, 'r') as f:
-            data = f.read()
-        xml_data = xmltodict.parse(data)
-        save_logs(f'parsing {xml_file}')
-        if 'Items' in xml_data['root'] and 'Item' in xml_data['root']['Items']:
-            save_logs(f'{xml_file} was identified as a price file')
-            root = xml_data['root']['Items']['Item']
-            save_price_list_to_file(root, gz_file_path, promo=is_promo)
-        else:
-            save_logs(f'could not find price root, will try promotion root for {xml_file}')
-            if 'Promotions' in xml_data['root']:
-                if 'Promotion' in xml_data['root']['Promotions'].keys():
-                    save_logs(f'{xml_file} was identified as a promotion file')
-                    get_promo_prices(xml_data['root']['Promotions']['Promotion'], xml_file)
+        if xml_file.startswith('shufersal_price') or xml_file.startswith('shufersal_promo'):
+            full_xml_file_path = f'{gz_file_path}/{xml_file}'
+            save_logs(f'working on {xml_file}')
+            with open(full_xml_file_path, 'r') as f:
+                data = f.read()
+            xml_data = xmltodict.parse(data)
+            save_logs(f'parsing {xml_file}')
+            if 'Items' in xml_data['root'] and 'Item' in xml_data['root']['Items']:
+                save_logs(f'{xml_file} was identified as a price file')
+                root = xml_data['root']['Items']['Item']
+                save_price_list_to_file(root, gz_file_path, promo=is_promo)
+            else:
+                save_logs(f'could not find price root, will try promotion root for {xml_file}')
+                if 'Promotions' in xml_data['root']:
+                    if 'Promotion' in xml_data['root']['Promotions'].keys():
+                        save_logs(f'{xml_file} was identified as a promotion file')
+                        get_promo_prices(xml_data['root']['Promotions']['Promotion'], xml_file)
+    unify_promos_and_prices(gz_file_path)
 
 
 def get_promo_prices(promotion_root, xml_file):
@@ -126,5 +128,5 @@ def get_promo_prices(promotion_root, xml_file):
                             promos_dict['ItemCode'] = item_code
                             save_price_list_to_file(promos_dict, gz_file_path, promo=True)
 
-get_perm_prices()
-unify_promos_and_prices(gz_file_path)
+
+

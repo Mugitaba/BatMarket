@@ -34,7 +34,7 @@ promo_keys_dict = {
     'ItemCode': 'ItemCode'
 }
 
-prep_csv_files(gz_file_path)
+
 
 def get_wolt_list_of_stores(keyword, today_failed):
     store_dict_list = []
@@ -80,6 +80,7 @@ def get_wolt_list_of_stores(keyword, today_failed):
 
 
 def get_wolt_prices(branch_name=None):
+    prep_csv_files(gz_file_path)
     store_name, file_names = get_wolt_list_of_stores(branch_name, False)
     for file_name in file_names:
         xml_data = parse_data_per_xml_file(gz_file_path, file_name)
@@ -101,6 +102,5 @@ def get_wolt_prices(branch_name=None):
                         if value in root_branch.keys():
                             temp_promotion_dict[key] = root_branch[value]
                     save_price_list_to_file(temp_promotion_dict, gz_file_path, promo=True)
+    unify_promos_and_prices(gz_file_path)
 
-get_wolt_prices('יד אליהו')
-unify_promos_and_prices(gz_file_path)

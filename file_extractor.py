@@ -2,16 +2,25 @@ import datetime
 import requests
 import gzip
 import os
-from barcode_db import todays_date
 from save_results import save_logs
 import xmltodict
+import json
+
+todays_date = datetime.datetime.today().strftime('%Y_%m_%d')
+
+def check_if_updtaed_today(name):
+    with open('data_files/last_pull_dates.json', 'r', encoding='utf-8') as updates_file:
+        update_data = json.load(updates_file)
+        if update_data[name] == todays_date:
+            return True
+        else:
+            return False
 
 def listify(item):
     if isinstance(item, list):
         return item
     else:
         return [item]
-
 
 def check_or_make_dir_or_file(path, kind):
     all_paths = listify(path)
@@ -27,18 +36,22 @@ def check_or_make_dir_or_file(path, kind):
         else:
             save_logs(f'{single_path} exists')
 
-
 def prep_csv_files(gz_file_path):
     check_or_make_dir_or_file(f'{gz_file_path}', 'dir')
 
     for num in range(0, 10):
         check_or_make_dir_or_file(
             [f'{gz_file_path}/item_list_promo_0{num}.csv', f'{gz_file_path}/item_list_0{num}.csv'], 'file')
+        check_or_make_dir_or_file(
+            [f'{gz_file_path}/item_list_0{num}.csv', f'{gz_file_path}/item_list_0{num}.csv'], 'file')
+
+
 
     for num in range(10, 100):
         check_or_make_dir_or_file([f'{gz_file_path}/item_list_promo_{num}.csv', f'{gz_file_path}/item_list_{num}.csv'],
                                   'file')
-
+        check_or_make_dir_or_file(
+            [f'{gz_file_path}/item_list_{num}.csv', f'{gz_file_path}/item_list_0{num}.csv'], 'file')
 
 def download_file(some_url, file_name, path='data_files', extract=False):
     gz_file_name = f'{path}/{file_name}'
@@ -63,7 +76,6 @@ def download_file(some_url, file_name, path='data_files', extract=False):
             os.remove(gz_file_name)
             save_logs(f'deleted {gz_file_name}')
     return xml_file_name
-
 
 def unzip_file(some_file):
     if os.path.exists(some_file):
@@ -100,7 +112,6 @@ def convert_date(date, time=None):
         raise ValueError
     return datetime.datetime.strptime(combined_datetime, '%Y-%m-%d %H:%M:%S')
 
-
 def verify_and_add_price_date(root_datas, full_dict):
     n = 0
     root_datas = listify(root_datas)
@@ -127,11 +138,14 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
         temp_dict = {}
         save_logs(f'running {n} of {len(root_datas)} codes for the same root')
 
-        item_code = root_data['ItemCode'].replace(',', '')
+        item_code = root_data['ItemCode'].replace(',', '').replace('.','')
         item_name = root_data['ItemName'].replace(',', '')
         item_price = root_data['ItemPrice'].replace(',', '')
         item_date = root_data['PriceUpdateDate'].replace(',', '')
+        if 'ManufactureName' in root_data.keys():
+            item_name += f'יצרן: {root_data["ManufactureName"].replace(",", "")}'
         list_index = item_code[-2:]
+        list_index = '0' + list_index if len(list_index) < 2 else list_index
         temp_file = f'{gz_file_path}/temp_item_list.csv'
         os.remove(temp_file) if os.path.exists(temp_file) else None
         check_or_make_dir_or_file(temp_file, 'file')

@@ -1,7 +1,7 @@
 import requests
 import datetime
 from file_extractor import (download_file, prep_csv_files, get_list_of_xmls, parse_data_per_xml_file, listify,
-                            convert_date, save_price_list_to_file, unify_promos_and_prices)
+                            convert_date, save_price_list_to_file, unify_promos_and_prices, check_if_updtaed_today)
 from save_results import save_logs
 from all_supers import victory
 
@@ -23,9 +23,12 @@ promo_keys_dict = {
     'ItemName': 'PromotionDescription'
 }
 
-prep_csv_files(gz_file_path)
-
 def get_victory_files():
+    if check_if_updtaed_today(victory.name):
+        save_logs(f'skipped {victory.name} since there has already been a scrape today')
+        return
+
+    prep_csv_files(gz_file_path)
     
     result = requests.get(full_url)
     save_logs(full_url)
@@ -33,7 +36,7 @@ def get_victory_files():
         save_logs(f' failed with status code {result.status_code}')
     elif 'אין קבצים להצגה' in result.text or f'-{online_branch_code}-' not in result.text:
         save_logs('no files from today, getting yesterday')
-        today = datetime.today()
+        today = datetime.datetime.today()
         yesterday = today - datetime.timedelta(days=1)
         result = requests.get(full_url + '&date=' + yesterday.strftime('%d/%m/%Y'))
     results_break = result.text.split("href='")
@@ -44,6 +47,7 @@ def get_victory_files():
             clean_link = link.split(f'latest/{chain_code}/')[1].split('.xml')[0].replace('/', '_').replace('-', '_')
             file_name = f'{clean_link}.gz'
             download_file(link, file_name, path=gz_file_path, extract=True)
+    map_victory_prices()
 
 def map_victory_prices():
     full_xml_file_list = get_list_of_xmls(gz_file_path)
@@ -72,42 +76,8 @@ def map_victory_prices():
             roots = listify(xml_data['Prices']['Products']['Product'])
             save_price_list_to_file(roots, gz_file_path, promo=is_promo)
 
+    unify_promos_and_prices(gz_file_path)
 
-
-            # print(f'price: {xml_data['Prices']['Products']['Product']}')
-    #         for product in price_list['Prices']['Products']['Product']:
-    #             if product['ItemCode'] not in all_regular_codes:
-    #                 all_regular_codes[product['ItemCode']] = [product['ItemName'], product['ItemCode'],
-    #                                                           product['ItemPrice'], product['PriceUpdateDate']]
-    #             elif product['PriceUpdateDate'] > all_regular_codes[product['ItemCode']][3]:
-    #                 all_regular_codes[product['ItemCode']] = [product['ItemName'], product['ItemCode'],
-    #                                                           product['ItemPrice'], product['PriceUpdateDate']]
-    #
-    # for link in promo_price_links:
-    #     price_list = xmltodict.parse(unzip_file(link), "utf-8")
-    #     try:
-    #         for product in price_list['Prices']['Products']['Product']:
-    #             if product['ItemCode'] not in all_promo_codes:
-    #                 all_promo_codes[product['ItemCode']] = [product['ItemName'], product['ItemCode'], product['ItemPrice'], product['PriceUpdateDate']]
-    #             elif product['PriceUpdateDate'] > all_promo_codes[product['ItemCode']][3]:
-    #
-    #
-    # for link in noraml_price_links:
-    #
-    #     price_list = xmltodict.parse(unzip_file(file_name), "utf-8")
-    #     try:
-    #
-    #             else:
-    #                 pass
-    #     except KeyError:
-    #         save_logs('could not parse xml. existing keys:')
-    #         save_logs(price_list['Prices']['Products']['Product'].keys())
-    #
-    # return all_regular_codes, all_promo_codes
-
-
-get_victory_files()
-map_victory_prices()
-unify_promos_and_prices(gz_file_path)
-
-# url_for_url = 'https://laibcatalog.co.il/CompetitionRegulationsFiles/latest/7290661400001/Price7290661400001-239-202507091510-001.xml.gz'
+def full_scrape():
+    get_victory_files()
+    map_victory_prices()

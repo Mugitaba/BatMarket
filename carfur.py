@@ -76,6 +76,8 @@ def get_perm_prices():
             if 'Promotions' in xml_data['Root']:
                 if 'Promotion' in xml_data['Root']['Promotions'].keys():
                     get_promo_prices(xml_data['Root']['Promotions']['Promotion'])
+    save_logs('unifying promos and prices')
+    unify_promos_and_prices(gz_file_path)
 
 
 
@@ -101,6 +103,4 @@ def get_promo_prices(promotion_root):
                                 promos_dict['ItemCode'] = item_code
                                 save_price_list_to_file(promos_dict, gz_file_path, promo=True)
 
-get_perm_prices()
-save_logs('unifying promos and prices')
-unify_promos_and_prices(gz_file_path)
+
