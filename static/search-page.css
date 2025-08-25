@@ -1,5 +1,6 @@
 body {
     font-family: Arial;
+    background-color: rgb(255, 250, 230);
 }
 
 table {
@@ -40,11 +41,33 @@ td, th {
 }
 
 table, td, th {
-    border: 2px dotted blue;
+    border: 2px dotted black;
 }
 
 .header-picture {
     width: 20%;
+}
+
+.full-top-section {
+    justify-content: center;
+    align-items: center;
+}
+
+.left-top-section {
+    width: 20%;
+    padding: 0;
+}
+
+.top-search-box {
+    display: flex;
+}
+
+.search-box {
+    width: 70%;
+    height:80%;
+    border: 3px;
+    border-style: inset;
+    background-color: blanchedalmond;
 }
 
 .header-div {
@@ -54,27 +77,40 @@ table, td, th {
     align-items: center;
 }
 
-.main-site-content, form {
+.main-site-content {
     border: 1px dotted grey;
-    margin-left: 5%; 
+    margin-left: 10%; 
     margin-right: 10%; 
-}
-
-.submit-search-button {
-    background-color: darkolivegreen;
-    color: white;
-    border: none;
-    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
 }
 
 .store-logo {
     width: 10%;
 }
 
-.top-search-bar {
-    background-color: chocolate;
-    padding: 5px;
-    border: 2px solid grey;
+.add-to-cart-image {
+    width: 60%;
+}
+
+.add-to-cart-image-small {
+    width: 15%;
+}
+
+.add-to-cart-button {
+    background-color: transparent;
+    border: none;
+}
+
+.unloading-image {
+    visibility: hidden;
+    width: 20%;
+}
+
+.loading-image {
+    visibility: visible;
+    width: 20%;
 }
 
 .carfur{
@@ -99,16 +135,162 @@ table, td, th {
     cursor: pointer;
 }
 
-@media (max-width: 600px) {
+.rights-reseved {
+    text-align: center;
+}
+
+.top-full-bar {
+    background-color: rgb(241, 182, 19);
+    margin-left: 10%; 
+    margin-right: 10%;  
+    border: 2px solid grey;
+    display: flex;
+}
+
+.sidebar-container {
+    position: fixed;        
+    top: 10px;             
+    left: 0;    
+    right: 5%;        
+    width: 10%;     
+    padding: 0;
+    background: transparent; 
+    border-radius: 12px;
+    z-index: 9999;        
+}
+
+
+.sidebar-container img {
+    display: block;
+    width: 100%;
+    margin: 0 auto 10px auto;
+}
+
+.sidebar-visible {
+    width: 100%;
+    object-fit: cover;
+    
+}
+
+.sidebar-list-item {
+    list-style: none;  
+    font-size: 12px;
+    position: absolute;
+    top: 30%;
+    right: 10%;
+    width: 100%;
+    padding:0%;  
+    max-height: 36%;
+    overflow: auto;
+}
+
+.right-to-left {
+    direction: rtl;
+}
+
+.sidebar-list-item li:hover {
+  background: #333;   
+  color:antiquewhite;
+  cursor:pointer;  
+}
+
+.sidebar-list-item li::before {
+  content: "🦇 ";    
+}
+
+.sidebar-container .view-shopping-list {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    background-color: darkolivegreen;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.add-remove-item {
+    display: flex;
+    justify-items: auto;
+    padding: 0;
+    align-items: center;
+}
+
+.list-image {
+    width:100%;
+}
+
+.toolkit-belt {
+    background-color: transparent;
+    border-color: black;
+    border-width: 3px;
+    border-radius: 0%;
+    width: 20%;
+    margin: 0;
+    font-weight: bold;
+}
+
+.submit-search-button {
+    width: 50%;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 17%;
+}
+
+.js-items-qty {
+    position: relative;
+    font-size: 150%;
+    right: 22%;
+    margin-top: 20%;
+    background-color: rgb(255, 228, 194);
+}
+
+
+@media (max-width: 1200px) {
   td, th {
-    padding: 4px;
-    font-size: 0.30rem;
+    padding:0;
+    width: 5%;
   }
   .store-logo {
     max-width: 25px;
   }
   .main-site-content{
-    width: 70%;
+    margin-right: 10%;
     overflow-x: auto;
   }
+
+  table {
+    margin-right: 0;
+    margin-top: 10px;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .list-image {
+    width:50%;
 }
+
+.add-to-cart-image {
+    width: 15px;
+    margin: 0;
+}
+
+.add-remove-item {
+    width: 50%;
+}
+
+.sidebar-list-item{
+    top: 22px; 
+    margin-top: 0;
+    font-size: 7px;
+    margin-bottom: 10px;
+}
+
+.view-shopping-list {
+    font-size:8px;
+}
+
+}
+
