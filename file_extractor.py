@@ -9,12 +9,15 @@ import json
 todays_date = datetime.datetime.today().strftime('%Y_%m_%d')
 
 def check_if_updtaed_today(name):
-    with open('data_files/last_pull_dates.json', 'r', encoding='utf-8') as updates_file:
-        update_data = json.load(updates_file)
-        if update_data[name] == todays_date:
-            return True
-        else:
-            return False
+    if os.path.exists('data_files/last_pull_dates.json'):
+        with open('data_files/last_pull_dates.json', 'r', encoding='utf-8') as updates_file:
+            update_data = json.load(updates_file)
+            if update_data[name] == todays_date:
+                return True
+            else:
+                return False
+    else:
+        return False
 
 def listify(item):
     if isinstance(item, list):
@@ -142,7 +145,7 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
         item_name = root_data['ItemName'].replace(',', '')
         item_price = root_data['ItemPrice'].replace(',', '')
         item_date = root_data['PriceUpdateDate'].replace(',', '')
-        if 'ManufactureName' in root_data.keys():
+        if 'ManufactureName' in root_data.keys() and root_data['ManufactureName']:
             item_name += f'יצרן: {root_data["ManufactureName"].replace(",", "")}'
         list_index = item_code[-2:]
         list_index = '0' + list_index if len(list_index) < 2 else list_index
@@ -188,7 +191,12 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
 def unify_promos_and_prices(gz_file_path):
     # Results table headers: Code, Name, Price, DiscountPricePerTotal, ItemsPerDiscount, DiscountPricePerItem, UpdateDate, FileUpdateDate
     unified_data = []
-    nums = [(str(x) + '0') for x in range(0, 10)] + [str(x) for x in range(10, 100)]
+    nums = []
+    for num in range(100):
+        if num < 10:
+            nums.append(f'0{num}')
+        else:
+            nums.append(str(num))
     for num in nums:
         promo_file = f'{gz_file_path}/item_list_promo_{num}.csv'
         price_file = f'{gz_file_path}/item_list_{num}.csv'

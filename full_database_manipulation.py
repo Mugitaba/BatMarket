@@ -11,54 +11,69 @@ from carfur import get_perm_prices
 gz_file_path = 'data_files/unified_data'
 check_or_make_dir_or_file(gz_file_path, 'dir')
 
+
 def list_code_name_stores():
-    nums = [(str(x) + '0') for x in range(0, 10)] + [str(x) for x in range(10, 100)]
+    nums = []
+
+    for n in range(100):
+        if n < 10:
+            nums.append(f'0{n}')
+        else:
+            nums.append(str(n))
 
     for num in nums:
-        temp_dict, code_and_name = {}, {}
+        temp_dict = {}
 
         global_unified_file = f'{gz_file_path}/unified_item_list_{num}.json'
         check_or_make_dir_or_file(global_unified_file, 'file')
 
         with open(global_unified_file, 'w', encoding='utf-8') as data_from_unified_file:
             for store in all_supers.all_supers_list:
+                code_and_name = {}
                 store_unified_file = f'data_files/{store.name}/unified_item_list_{num}.csv'
+
                 with open(store_unified_file, 'r', encoding='utf-8') as data_from_store_file:
                     list_of_lines_per_store = [line for line in
                                                data_from_store_file.read().split('\n')][1:]
+
                     for item in list_of_lines_per_store:
                         if item:
                             broken_item = item.split(',')
                             code_and_name[broken_item[0]] = broken_item[1]
+
                     for key, value in temp_dict.items():
                         if key in code_and_name.keys():
-                            value.append(store.name)
+                            value['names'].append(code_and_name[key])
+                            value['stores'].append(store.name)
                             code_and_name.pop(key)
+
                     for key, value in code_and_name.items():
-                        temp_dict[key] = [value, store.name]
-            json_with_codes_and_stores = json.dumps(temp_dict)
-            data_from_unified_file.write(json_with_codes_and_stores)
-            
-            
+                        temp_dict[key] = {'names': [value], 'stores': [store.name]}
+            data_from_unified_file.write(json.dumps(temp_dict or {}))
+
+
 def search_by_name(name):
+
+    list_code_name_stores()
+
     dict_of_matching_codes = {}
-    
+
     name_parts = name.split(' ')
 
     for file in os.listdir(gz_file_path):
         if file.startswith('unified_item_list'):
-            with open(f'{gz_file_path}/{file}') as json_file:
+            with open(f'{gz_file_path}/{file}', 'r', encoding='utf-8') as json_file:
                 data = json.load(json_file)
                 for key, value in data.items():
                     if key not in dict_of_matching_codes.keys():
-                        name_found = True
                         for part in name_parts:
-                            if part not in value[0]:
-                                name_found = False
-                                break
-                        if name_found:
-                            dict_of_matching_codes[key] = value
+                            for name in value['names']:
+                                if part in name:
+                                    dict_of_matching_codes[key] = value
+
     return dict_of_matching_codes
+
+
 
 def make_list_of_prices_per_code(store_file_path, store, search_item_code, prices_dict, number_of_items):
     with open(store_file_path, 'r', encoding='utf-8') as price_file:
@@ -111,7 +126,7 @@ def search_by_code(code, number_of_items):
     with open(global_unified_file, 'r', encoding='utf-8') as json_file:
         code_dict = json.load(json_file)
         if code in code_dict.keys():
-            list_of_stores = code_dict[code][1:]
+            list_of_stores = code_dict[code]['stores']
         else:
             return 'code not found'
         
@@ -127,8 +142,9 @@ def return_list_of_products_by_name(name):
     forward_dict = {}
     dict_of_products = search_by_name(name)
     for key, value in dict_of_products.items():
-        forward_dict[value[0]] = key
+        forward_dict[value['names'][0]] = key
     return forward_dict
+
 
 def search_price_range(code):
     normal_price_range = (9000000,0)
@@ -141,7 +157,7 @@ def search_price_range(code):
     with open(global_unified_file, 'r', encoding='utf-8') as json_file:
         code_dict = json.load(json_file)
         if code in code_dict.keys():
-            list_of_stores = code_dict[code][1:]
+            list_of_stores = code_dict[code]['stores']
         else:
             return 'code not found'
 

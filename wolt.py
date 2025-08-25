@@ -79,7 +79,7 @@ def get_wolt_list_of_stores(keyword, today_failed):
     return store_name, items_file_names
 
 
-def get_wolt_prices(branch_name=None):
+def get_wolt_prices(branch_name='יד אליהו'):
     prep_csv_files(gz_file_path)
     store_name, file_names = get_wolt_list_of_stores(branch_name, False)
     for file_name in file_names:
@@ -103,4 +103,3 @@ def get_wolt_prices(branch_name=None):
                             temp_promotion_dict[key] = root_branch[value]
                     save_price_list_to_file(temp_promotion_dict, gz_file_path, promo=True)
     unify_promos_and_prices(gz_file_path)
-
