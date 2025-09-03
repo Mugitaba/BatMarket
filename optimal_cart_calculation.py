@@ -2,13 +2,6 @@ from all_supers import all_supers_list
 from full_database_manipulation import search_by_code, list_code_name_stores
 
 
-list_of_items = [
-    {'code': '9720188060108','qty': 40},
-    {'code': '7290000063300','qty': 1},
-    {'code': '7290001594155','qty': 1},
-    {'code': '7290013585394','qty': 40}
-]
-
 '''
 final_super_list = [
     {super name: [[product list], total price],
@@ -22,106 +15,141 @@ prices_dict = {
     'productName': item name,
     store: price
 }
+
+must_stores = {
+     **store name with cheapest values (str)**: {
+        'totalGap': float, 
+        'hasUniqueItems': bool, 
+        'uniqueItems': {},
+        'cheapestItems': {
+            '123456789': {
+                'name': str, 
+                'qty': int, 
+                'totalPrice': float, 
+                'gap': float
+            }, 
+            '987654321': {
+                'name': str, 
+                'qty': int, 
+                'totalPrice': float, 
+                'gap': float
+            }, 
+            '7290013585394': {
+                'name': str, 
+                'qty': int, 
+                'totalPrice': float, 
+                'gap': float
+            }
+        }
+    }, 
+    **store name with unique values (str)**: {
+        'totalGap': float, 
+        'hasUniqueItems': bool, 
+        'cheapestItems': {},
+        'uniqueItems': {
+            '192837465': {
+                'name': str, 
+                'qty': int, 
+                'totalPrice': float
+            }
+        }
+    }
+}
 '''
 
 list_of_all_super_names = [x.name for x in all_supers_list]
 
 final_super_list = []
 
-must_stores = {}
 cheapest_dict = {}
 full_gap = {}
 for super_name in list_of_all_super_names:
-    cheapest_dict[super_name] = {}
     full_gap[super_name] = 0
-    for single_item in list_of_items:
-        cheapest_dict[super_name][single_item['code']] = 0
 
 def find_price_gaps(list_of_items):
-    barcode_dict = {}
 
     for item in list_of_items:
-        current_cheapest = None
+
         barcode, qty = item['code'], item['qty']
         prices_dict = search_by_code(barcode, qty)
+
         if prices_dict == 'code not found':
             continue
-        barcode_dict[barcode] = prices_dict['productName']
+
+        cheapest_dict[barcode] = {
+            'name': prices_dict['productName'],
+            'qty': qty,
+            'totalPrice': None,
+            'cheapestStores': [],
+            'allStores': {},
+            'gap': 0
+        }
 
         for supermarket in list_of_all_super_names:
             if supermarket in prices_dict.keys():
-                if not current_cheapest:
-                    current_cheapest = prices_dict[supermarket]
-                    cheapest_dict[supermarket][barcode] = 1
-                elif current_cheapest <= prices_dict[supermarket]:
-                    cheapest_dict[supermarket][barcode] = current_cheapest - prices_dict[supermarket]
-                elif cheapest_dict[supermarket][barcode]:
-                    current_cheapest = cheapest_dict[supermarket][barcode]
-                    for existing_store in cheapest_dict.keys():
-                        if barcode in cheapest_dict[existing_store]:
-                            cheapest_dict[existing_store][barcode] = current_cheapest - prices_dict[existing_store]
+                cheapest_dict[barcode]['allStores'][supermarket] = 0
+                if not cheapest_dict[barcode]['totalPrice']:
+                    cheapest_dict[barcode]['totalPrice'] = prices_dict[supermarket]
+                    cheapest_dict[barcode]['cheapestStores'] = [supermarket]
 
-    return cheapest_dict, barcode_dict
+                elif cheapest_dict[barcode]['totalPrice'] == prices_dict[supermarket]:
+                    cheapest_dict[barcode]['cheapestStores'].append(supermarket)
+
+                elif cheapest_dict[barcode]['totalPrice'] > prices_dict[supermarket]:
+                    cheapest_dict[barcode]['gap'] = cheapest_dict[barcode]['totalPrice'] - prices_dict[supermarket]
+                    cheapest_dict[barcode]['totalPrice'] = prices_dict[supermarket]
+                    cheapest_dict[barcode]['cheapestStores'] = [supermarket]
+                    for existing_store in cheapest_dict[barcode]['allStores'].keys():
+                        cheapest_dict[barcode][existing_store] = prices_dict[existing_store] -  cheapest_dict[barcode]['totalPrice']
+    return cheapest_dict
 
 
+def get_high_gap_ane_unique_items(list_of_items):
+    must_stores = {}
 
+    cheapest_dict = find_price_gaps(list_of_items)
 
-def get_high_gap_ane_unique_items():
-    cheapest, barcode_dict = find_price_gaps(list_of_items)
-
-    for item in list_of_items:
-        item_code = item['code']
-        available_stores = []
-        for store in cheapest.keys():
-            if cheapest[store][item_code]:
-                available_stores.append(store)
-                item_value = cheapest[store][item_code]
-                full_gap[store] += item_value if item_value < 0 else 0
-                if full_gap[store] < -30:
-                    if store in must_stores.keys():
-                        must_stores[store]['isSignificantlyCheaper'] = True
-                        must_stores[store]['priceGap'] = full_gap[store]
-                    else:
-                        cheaper_item_codes =  [x['code'] for x in list_of_items if cheapest[store][x['code']] < 0]
-                        must_stores[store] = {
-                            'isSignificantlyCheaper': True,
-                            'cheaperItemCodes': cheaper_item_codes,
-                            'cheaperItemNames': [barcode_dict[x] for x in cheaper_item_codes],
-                            'hasUniqueItems': [],
-                            'priceGap': full_gap[store]
-                        }
-
-        if len(available_stores) == 1:
-            available_store = available_stores[0]
-            if available_store in must_stores.keys():
-                must_stores[available_store]['hasUniqueItems'].append({item_code: barcode_dict[item_code]})
-            else:
-                cheaper_item_codes = [x['code'] for x in list_of_items if cheapest[available_store][x['code']] < 0]
-                must_stores[available_store] = {
-                    'isSignificantlyCheaper': False,
-                    'cheaperItemCodes': cheaper_item_codes,
-                    'cheaperItemNames': [barcode_dict[x] for x in cheaper_item_codes],
-                    'hasUniqueItems': [{item_code: barcode_dict[item_code]}],
-                    'priceGap': full_gap[available_store]
+    for key, value in cheapest_dict.items():
+        if len(value['allStores']) == 1:
+            unique_store = list(value['allStores'].keys())[0]
+            if unique_store not in must_stores.keys():
+                must_stores[unique_store] = {
+                    'totalGap': 0,
+                    'hasUniqueItems': True,
+                    'uniqueItems': {key: {}},
+                    'cheapestItems': {}
                 }
+
+            must_stores[unique_store]['uniqueItems'][key]= {
+                'name': value['name'],
+                'qty': value['qty'],
+                'totalPrice': value['totalPrice']
+            }
+
+        else:
+            for supermarket in value['cheapestStores']:
+                if supermarket not in must_stores.keys():
+                    must_stores[supermarket] = {
+                        'totalGap': value['gap'],
+                        'hasUniqueItems': False,
+                        'cheapestItems': {},
+                        'uniqueItems': {}
+                    }
+                else:
+                    must_stores[supermarket]['totalGap'] += value['gap']
+
+                must_stores[supermarket]['cheapestItems'][key] = {
+                    'name': value['name'],
+                    'qty': value['qty'],
+                    'totalPrice': value['totalPrice'],
+                    'gap': value['gap']
+                }
+
+
+
     return must_stores
 
 
 
 
-must_stores = get_high_gap_ane_unique_items()
-# for item in cheapest:
-#     print(f'{item}: {cheapest[item]} - {full_gap[item]}')
-#
-# print('\n\n\n\n')
-
-# for store in must_stores:
-#     print(f'{store}: {must_stores[store]}')
-
-print('The folowing stores have these unique items:')
-for store in must_stores:
-    print(f'{store}: {must_stores[store]['hasUniqueItems']}')
-print('\n\n')
-print('The following stroes present significantly cheaper options:')
-for store in must_stores:
-    print(f'{store}: {must_stores[store]['cheaperItemNames']} || Gap: {must_stores[store]['priceGap']}')
+# must_stores = get_high_gap_ane_unique_items()
