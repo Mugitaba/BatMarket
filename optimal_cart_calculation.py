@@ -3,10 +3,14 @@ from full_database_manipulation import search_by_code, list_code_name_stores
 
 
 '''
-final_super_list = [
-    {super name: [[product list], total price],
-     super name: [[product list], total price], 
-    ...
+list_of_items = [
+    {
+        'code': str, 
+        'qty': int
+    }, 
+    {
+        'code': str, 
+        'qty': int 
     }
 ]
 
@@ -58,8 +62,6 @@ must_stores = {
 '''
 
 list_of_all_super_names = [x.name for x in all_supers_list]
-
-final_super_list = []
 
 cheapest_dict = {}
 full_gap = {}

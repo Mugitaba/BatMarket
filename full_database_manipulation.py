@@ -3,10 +3,11 @@ import all_supers
 import json
 from file_extractor import check_or_make_dir_or_file, save_logs
 from flask import Flask, request, jsonify, render_template
-from wolt import get_wolt_prices
-from victory import get_victory_files
-from shufersal import get_perm_prices
-from carfur import get_perm_prices
+from wolt import get_wolt_prices as wolt_get_prices
+from victory import get_victory_files as victory_get_prices
+from shufersal import get_perm_prices as shufersal_get_prices
+from carfur import get_perm_prices as carfur_get_prices
+from optimal_cart_calculation import get_high_gap_ane_unique_items
 
 gz_file_path = 'data_files/unified_data'
 check_or_make_dir_or_file(gz_file_path, 'dir')
@@ -243,10 +244,10 @@ def show_backend():
 @app.route('/backend-stuff/run-pull', methods=['GET'])
 def scrape_full_data():
     try:
-        get_wolt_prices('יד אליהו')
-        get_victory_files()
-        get_perm_prices()
-        get_perm_prices()
+        wolt_get_prices('יד אליהו')
+        victory_get_prices()
+        shufersal_get_prices()
+        carfur_get_prices()
     except Exception as e:
         return jsonify({'status': f'error: {e}'})
     return jsonify({'status': 'done'})
@@ -262,6 +263,19 @@ def get_shopping_list_prices():
     for item in shopping_list:
         price_list.append(search_by_code(item['barCode'], item['qty']))
     return jsonify(price_list) if price_list else jsonify([])
+
+@app.route('/shopping-list/find-optimal-carts', methods=['POST'])
+def get_shopping_list_prices():
+    price_list = []
+    shopping_list = request.get_json()
+    for item in shopping_list:
+        price_list.append({
+            'code': item['barCode'],
+            'qty': item['qty']
+            }
+        )
+    optimal_cart =  get_high_gap_ane_unique_items(price_list)
+    return jsonify(optimal_cart) if optimal_cart else jsonify({})
 
 
 @app.route('/')
