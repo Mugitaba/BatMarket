@@ -1,5 +1,4 @@
 from all_supers import all_supers_list
-from full_database_manipulation import search_by_code, list_code_name_stores
 
 
 '''
@@ -68,7 +67,7 @@ full_gap = {}
 for super_name in list_of_all_super_names:
     full_gap[super_name] = 0
 
-def find_price_gaps(list_of_items):
+def find_price_gaps(list_of_items, search_by_code):
 
     for item in list_of_items:
 
@@ -106,10 +105,10 @@ def find_price_gaps(list_of_items):
     return cheapest_dict
 
 
-def get_high_gap_ane_unique_items(list_of_items):
+def get_high_gap_ane_unique_items(list_of_items, search_by_code):
     must_stores = {}
 
-    cheapest_dict = find_price_gaps(list_of_items)
+    cheapest_dict = find_price_gaps(list_of_items, search_by_code)
 
     for key, value in cheapest_dict.items():
         if len(value['allStores']) == 1:

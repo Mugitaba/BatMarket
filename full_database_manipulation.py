@@ -264,8 +264,12 @@ def get_shopping_list_prices():
         price_list.append(search_by_code(item['barCode'], item['qty']))
     return jsonify(price_list) if price_list else jsonify([])
 
-@app.route('/shopping-list/find-optimal-carts', methods=['POST'])
-def get_shopping_list_prices():
+@app.route('/optimal-cart', methods=['GET'])
+def render_optimal_cart():
+    return render_template('optimal-cart.html')
+
+@app.route('/optimal-cart/find-optimal-carts', methods=['POST'])
+def get_optimal_carts():
     price_list = []
     shopping_list = request.get_json()
     for item in shopping_list:
@@ -274,7 +278,7 @@ def get_shopping_list_prices():
             'qty': item['qty']
             }
         )
-    optimal_cart =  get_high_gap_ane_unique_items(price_list)
+    optimal_cart =  get_high_gap_ane_unique_items(price_list, search_by_code)
     return jsonify(optimal_cart) if optimal_cart else jsonify({})
 
 

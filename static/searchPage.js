@@ -197,3 +197,9 @@ document.querySelector('.js-view-shopping-list').addEventListener(
     }
 );
 
+document.querySelector('.js-view-optimal-cart').addEventListener(
+    'click', () => {
+        window.location.href = '/optimal-cart'
+    }
+);
+

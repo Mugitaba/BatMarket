@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="heb">
+	<head>
+		<title>הסל האופטימלי</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='search-page.css') }}">
+	</head>
+	<body>
+        <div class="right-top-section">
+            <div class="header-div">
+                <img src="{{ url_for('static', filename='batmarket_icon.png') }}" class="header-picture">
+            </div>
+            <h1 class="right-to-left">המוצרים שנבחרו:</h1>
+            <div class="top-full-bar">
+            </div>
+            <datalist id="possible-products" class="js-possible-products">
+                <option value="התחילו להקיש על מנת לקבל הצעות למוצרים"></option>
+            </datalist>
+        </div>
+        <div class="js-main-content right-to-left"></div>
+		<footer>
+            <a href="/">לחיפוש מוצרים נוספים</a>
+			<p class="rights-reseved">© Omer Cohen Gil 2025</p>
+		</footer>
+		<script type="module" src="{{ url_for('static', filename='optimalCart.js') }}"></script>
+	</body>
+</html>
+
