@@ -8,6 +8,7 @@ from victory import get_victory_files as victory_get_prices
 from shufersal import get_perm_prices as shufersal_get_prices
 from carfur import get_perm_prices as carfur_get_prices
 from optimal_cart_calculation import get_high_gap_ane_unique_items
+import image_scraper
 
 gz_file_path = 'data_files/unified_data'
 check_or_make_dir_or_file(gz_file_path, 'dir')
@@ -54,26 +55,33 @@ def list_code_name_stores():
 
 
 def search_by_name(name):
-
     list_code_name_stores()
 
     dict_of_matching_codes = {}
 
     name_parts = name.split(' ')
 
+    option_count = 0
+
     for file in os.listdir(gz_file_path):
-        if file.startswith('unified_item_list'):
+        if file.startswith('unified_item_list') and os.path.getsize(f'{gz_file_path}/{file}') > 0:
             with open(f'{gz_file_path}/{file}', 'r', encoding='utf-8') as json_file:
                 data = json.load(json_file)
                 for key, value in data.items():
+                    is_value = True
                     if key not in dict_of_matching_codes.keys():
                         for part in name_parts:
                             for name in value['names']:
-                                if part in name:
-                                    dict_of_matching_codes[key] = value
+                                if part not in name:
+                                    is_value = False
+                                    break
+                        if is_value:
+                            option_count += 1
+                            dict_of_matching_codes[key] = value
+                    if option_count > 50:
+                        return dict_of_matching_codes
 
     return dict_of_matching_codes
-
 
 
 def make_list_of_prices_per_code(store_file_path, store, search_item_code, prices_dict, number_of_items):
@@ -130,7 +138,7 @@ def search_by_code(code, number_of_items):
             list_of_stores = code_dict[code]['stores']
         else:
             return 'code not found'
-        
+
     for store in list_of_stores:
         save_logs(f'searching {code} in {store}')
         store_file_path = f'data_files/{store}/unified_item_list_{file_index}.csv'
@@ -138,6 +146,7 @@ def search_by_code(code, number_of_items):
         save_logs(prices_dict)
 
     return prices_dict
+
 
 def return_list_of_products_by_name(name):
     forward_dict = {}
@@ -148,8 +157,8 @@ def return_list_of_products_by_name(name):
 
 
 def search_price_range(code):
-    normal_price_range = (9000000,0)
-    discount_price_range = (9000000,0)
+    normal_price_range = (9000000, 0)
+    discount_price_range = (9000000, 0)
     product_name = None
 
     file_index = code[-2:]
@@ -174,16 +183,16 @@ def search_price_range(code):
                         try:
                             normal_price = float(split_line[2])
                             if normal_price < normal_price_range[0]:
-                                normal_price_range = (normal_price,normal_price_range[1])
+                                normal_price_range = (normal_price, normal_price_range[1])
                             if normal_price > normal_price_range[1]:
                                 normal_price_range = (normal_price_range[0], normal_price)
                         except ValueError:
                             pass
                         try:
-                            if split_line[5] != 'n/a' and  split_line[5] != 'NaN':
+                            if split_line[5] != 'n/a' and split_line[5] != 'NaN':
                                 discount_price = float(split_line[5])
                                 if discount_price < discount_price_range[0]:
-                                    discount_price_range = (discount_price,discount_price_range[1])
+                                    discount_price_range = (discount_price, discount_price_range[1])
                                 if discount_price > discount_price_range[1]:
                                     discount_price_range = (discount_price_range[0], discount_price)
                         except ValueError:
@@ -207,6 +216,8 @@ def search_price_range(code):
 
 
 app = Flask(__name__)
+
+
 @app.route('/search', methods=['GET'])
 def search_value():
     result_list = []
@@ -231,15 +242,18 @@ def search_value():
 
     return jsonify(result_list)
 
+
 @app.route('/name-search', methods=['GET'])
 def search_product_names():
     query = request.args.get('q', '')
     result_dict = return_list_of_products_by_name(query)
     return jsonify(result_dict)
 
+
 @app.route('/backend-stuff', methods=['GET'])
 def show_backend():
     return render_template('configurations.html')
+
 
 @app.route('/backend-stuff/run-pull', methods=['GET'])
 def scrape_full_data():
@@ -252,9 +266,11 @@ def scrape_full_data():
         return jsonify({'status': f'error: {e}'})
     return jsonify({'status': 'done'})
 
+
 @app.route('/shopping-list', methods=['GET'])
 def show_shopping_list():
     return render_template('list-prices.html')
+
 
 @app.route('/shopping-list/get-prices', methods=['POST'])
 def get_shopping_list_prices():
@@ -264,9 +280,11 @@ def get_shopping_list_prices():
         price_list.append(search_by_code(item['barCode'], item['qty']))
     return jsonify(price_list) if price_list else jsonify([])
 
+
 @app.route('/optimal-cart', methods=['GET'])
 def render_optimal_cart():
     return render_template('optimal-cart.html')
+
 
 @app.route('/optimal-cart/find-optimal-carts', methods=['POST'])
 def get_optimal_carts():
@@ -276,9 +294,9 @@ def get_optimal_carts():
         price_list.append({
             'code': item['barCode'],
             'qty': item['qty']
-            }
+        }
         )
-    optimal_cart =  get_high_gap_ane_unique_items(price_list, search_by_code)
+    optimal_cart = get_high_gap_ane_unique_items(price_list, search_by_code)
     return jsonify(optimal_cart) if optimal_cart else jsonify({})
 
 
@@ -286,12 +304,19 @@ def get_optimal_carts():
 def present_site():
     return render_template('search-prices.html')
 
+
+@app.route('/get-image', methods=['GET'])
+def get_image():
+    code = request.args.get('q', '')
+    potential_img_file = f'static/product_images/product_image_{code[-2:]}.json'
+
+    if os.path.exists(potential_img_file):
+        with open(potential_img_file, 'r', encoding='utf-8') as image_file:
+            saved_dict = json.load(image_file)
+            if code in saved_dict.keys():
+                return {'image': saved_dict[code]}
+    return {'image': image_scraper.scrape_image(code)}
+
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-
-
