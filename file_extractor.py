@@ -146,7 +146,7 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
         item_price = root_data['ItemPrice'].replace(',', '')
         item_date = root_data['PriceUpdateDate'].replace(',', '')
         if 'ManufactureName' in root_data.keys() and root_data['ManufactureName']:
-            item_name += f'יצרן: {root_data["ManufactureName"].replace(",", "")}'
+            item_name += f' יצרן: {root_data["ManufactureName"].replace(",", "")} '
         list_index = item_code[-2:]
         list_index = '0' + list_index if len(list_index) < 2 else list_index
         temp_file = f'{gz_file_path}/temp_item_list.csv'

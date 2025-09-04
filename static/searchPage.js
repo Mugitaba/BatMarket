@@ -112,8 +112,8 @@ async function makeRunSearch(queryValue) {
                                </button>
                            </div>
                        </td>
-                       <td>${lowDiscount} - ${highDiscount}</td>
-                       <td>${lowPrice} - ${highPrice}</td>
+                       <td>${lowDiscount.toFixed(2)} - ${highDiscount.toFixed(2)}</td>
+                       <td>${lowPrice.toFixed(2)} - ${highPrice.toFixed(2)}</td>
                        <td>
                            <button
                                class="product-button"
@@ -122,7 +122,6 @@ async function makeRunSearch(queryValue) {
                            </button>
                        </td>
                    </tr>`;
-           loadImage.setAttribute(`class`,`unloading-image`);
        };
        getImageForCode();
    })
@@ -190,6 +189,7 @@ async function makeRunSearch(queryValue) {
            }
        );
    });
+   loadImage.setAttribute(`class`,`unloading-image`);
 };
 
 document.querySelector('.js-view-shopping-list').addEventListener(
@@ -212,6 +212,7 @@ async function getImageForCode() {
 
    };
 }
+
 document.querySelector('.js-view-optimal-cart').addEventListener(
    'click', () => {
        window.location.href = '/optimal-cart'

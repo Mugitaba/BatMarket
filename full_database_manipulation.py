@@ -56,11 +56,8 @@ def list_code_name_stores():
 
 def search_by_name(name):
     list_code_name_stores()
-
     dict_of_matching_codes = {}
-
     name_parts = name.split(' ')
-
     option_count = 0
 
     for file in os.listdir(gz_file_path):
@@ -68,18 +65,18 @@ def search_by_name(name):
             with open(f'{gz_file_path}/{file}', 'r', encoding='utf-8') as json_file:
                 data = json.load(json_file)
                 for key, value in data.items():
-                    is_value = True
-                    if key not in dict_of_matching_codes.keys():
+                    for name in value['names']:
+                        is_value = True
                         for part in name_parts:
-                            for name in value['names']:
-                                if part not in name:
-                                    is_value = False
-                                    break
-                        if is_value:
-                            option_count += 1
-                            dict_of_matching_codes[key] = value
-                    if option_count > 50:
-                        return dict_of_matching_codes
+                            if part not in name:
+                                is_value = False
+                                continue
+                    if is_value:
+                        option_count += 1
+                        dict_of_matching_codes[key] = value
+                        print(option_count)
+                if option_count > 50:
+                    return dict_of_matching_codes
 
     return dict_of_matching_codes
 
@@ -239,7 +236,6 @@ def search_value():
         for b_code in list_of_codes:
             save_logs(f'Name search for barcode: {b_code}')
             result_list.append(search_price_range(b_code))
-
     return jsonify(result_list)
 
 
