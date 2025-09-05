@@ -191,9 +191,17 @@ async function makeRunSearch(queryValue) {
    loadImage.classList.remove('on');
 };
 
+
 document.querySelector('.js-view-shopping-list').addEventListener(
    'click', () => {
        window.location.href = '/shopping-list'
+   }
+);
+
+document.querySelector('.js-view-optimal-cart').addEventListener(
+   'click', () => {
+       console.log('click')
+       window.location.href = '/optimal-cart'
    }
 );
 
@@ -211,9 +219,3 @@ async function getImageForCode() {
 
    };
 }
-
-document.querySelector('.js-view-optimal-cart').addEventListener(
-   'click', () => {
-       window.location.href = '/optimal-cart'
-   }
-);
