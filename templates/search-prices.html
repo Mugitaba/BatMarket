@@ -24,29 +24,28 @@
                 </div>
 				<div class="top-full-bar">
 					<button class="toolkit-belt view-optimal-cart js-view-optimal-cart">
-                        <img src="{{ url_for('static', filename='TwoFace.png') }}" class="minor-header-picture">
+                        <img src="{{ url_for('static', filename='TwoFace.png') }}" class="minor-header-image">
                         <span class="flex-bottom">לסל הקניות האופטימלי</span>
                     </button>
 					<button class="toolkit-belt view-optimal-cart js-view-optimal-cart">
-                        <img src="{{ url_for('static', filename='Penguin.png') }}" class="minor-header-picture">
+                        <img src="{{ url_for('static', filename='Penguin.png') }}" class="minor-header-image">
                         <span class="flex-bottom">לרשימת הקניות</span>
                     </button>
-					<form id="Bar-code-form" class="top-search-box" accept-charset="utf-8">
-						<button class="js-submit-search-button submit-search-button toolkit-belt no-border" type="submit">
-							<img src="{{ url_for('static', filename='Riddler.png') }}" class="minor-header-picture">
-							<span>
-								<img src="/static/animations/spinner.gif" class="js-loading-image unloading-image" id="spinnerImage">
-								חיפוש
-								<img src="/static/animations/spinner.gif" class="js-loading-image unloading-image" id="spinnerImage">
-							</span>
-						</button>
-						<div class="search-container">
-							<img src="{{ url_for('static', filename='Joker.png') }}" class="minor-header-picture">
-							<span class="flex-bottom">
-								<input type= "text" placeholder="כאן מחפשים.ות" class="js-search-box search-box flex-bottom" list="possible-products">
-							</span>
-						</div>
-                    </form>
+					<div class="top-search-box">
+                        <form id="Bar-code-form" class="search-bar"  accept-charset="utf-8">
+                            <div class="search-container">
+                                <img src="{{ url_for('static', filename='Joker.png') }}" class="minor-header-image">
+                                <div class="search-row">
+                                    <input type= "text" placeholder="כאן מחפשים.ות" class="js-search-box search-box flex-bottom" list="possible-products">
+                                    <button class="js-submit-search-button submit-search-button toolkit-belt" type="submit">
+                                        <img src="{{ url_for('static', filename='Riddler.png') }}" class="small-header-image">
+                                        <span>חיפוש</span>
+                                    </button>
+                                    <img src="/static/animations/spinner.gif" class="js-loading-image loading-image" id="spinnerImage">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 				</div>
 				<datalist id="possible-products" class="js-possible-products">
 					<option value="התחילו להקיש על מנת לקבל הצעות למוצרים"></option>

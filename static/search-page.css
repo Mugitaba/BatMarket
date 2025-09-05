@@ -45,6 +45,10 @@ table, td, th {
     border: 2px dotted black;
 }
 
+td {
+    font-size: 25px;
+}
+
 .header-picture {
     width: 20%;
 }
@@ -59,28 +63,45 @@ table, td, th {
     padding: 0;
 }
 
-.top-search-box {
-    display: flex;
-    flex-direction: row;
-    border: 3px solid black;
-    border-style: outset;
-    border-radius: 20%;
-    padding: 10px;
-}
-
 .search-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     text-align: center;
 }
 
+.top-search-box {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20%;
+  padding: 10px;
+  padding-bottom: 20px;
+  justify-content: flex-end;
+}
+
 .search-box {
-    width: 70%;
-    height:80%;
-    border: 3px;
-    border-style: inset;
+    height: 30px;
+    border: 3px inset;
     background-color: blanchedalmond;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    margin: 3px;
+}
+
+.search-row {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 10px;
 }
 
 .header-div {
@@ -116,14 +137,13 @@ table, td, th {
     border: none;
 }
 
-.unloading-image {
-    display: none;
+.loading-image {
+    visibility: hidden;
     width: 10%;
 }
 
-.loading-image {
-    display: inline-block;
-    width: 10%;
+.loading-image.on {
+    visibility: visible;
 }
 
 .carfur{
@@ -158,6 +178,7 @@ table, td, th {
     /* border: 2px solid grey; */
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .sidebar-container {
@@ -244,19 +265,13 @@ table, td, th {
     align-items: center;
 }
 
-.submit-search-button {
-    width: 50%;
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 .js-items-qty {
     position: relative;
-    font-size: 150%;
-    right: 22%;
+    font-size: 300%;
+/*    right: 22%;
     margin-top: 20%;
     background-color: rgb(255, 228, 194);
+*/
 }
 
 .over-panel {
@@ -266,7 +281,7 @@ table, td, th {
     margin-right: 33%;
 }
 
-.minor-header-picture {
+.minor-header-image {
     width: 150px;
     align-items: flex-start;
 }
@@ -275,10 +290,24 @@ table, td, th {
     align-items: flex-end;
 }
 
+.submit-search-button {
+    background-color: lightgoldenrodyellow;
+    border: 3px solid black;
+    padding: 0 20px;
+    margin: 0;
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .no-border {
     border-width: 0;
 }
 
+.small-header-image {
+    height: 30px;
+}
 
 @media (max-width: 1200px) {
   td, th {

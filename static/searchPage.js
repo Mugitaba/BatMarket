@@ -49,24 +49,22 @@ async function getListOfProducts(queryValue) {
 function updateShoppingListIcons() {
        document.querySelectorAll('.js-items-qty').forEach((tableItem) => {
 
-       let identifiedQty = '';
+       let identifiedQty = '0';
 
        shoppingList.forEach((shoppingListItem) => {
-           console.log(shoppingListItem.barCode, tableItem.dataset.productId);
 
            if (shoppingListItem.barCode === tableItem.dataset.productId) {
                identifiedQty = shoppingListItem.qty;
            };
-
-           tableItem.innerHTML = identifiedQty || '';
        })
+   tableItem.innerHTML = identifiedQty;
    });
 };
 
 
 function runSearch(queryValue) {
 
-   loadImage.setAttribute(`class`,`loading-image`);
+   loadImage.classList.add('on');
    makeRunSearch(queryValue)
 };
 
@@ -100,8 +98,8 @@ async function makeRunSearch(queryValue) {
                                    >
                                    <img class="add-to-cart-image" src="/static/minus.png">
                                </button>
-                               <img id=${productCode} class="list-image" src="/static/shopping_list.png">
-                               <div class="js-items-qty" data-product-id="${[productCode]}"></div>
+                               <!-- <img id=${productCode} class="list-image" src="/static/shopping_list.png"> -->
+                               <div class="js-items-qty" data-product-id="${[productCode]}">0</div>
                                <button
                                    class="js-add-to-cart
                                        add-to-cart-button"
@@ -168,6 +166,7 @@ async function makeRunSearch(queryValue) {
                } else if (isChecked){
                    const newList = shoppingList.filter((itm => itm.barCode !== barcodeValue));
                    shoppingList = newList;
+                   isChecked.qty = 0;
                };
 
                localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
@@ -189,7 +188,7 @@ async function makeRunSearch(queryValue) {
            }
        );
    });
-   loadImage.setAttribute(`class`,`unloading-image`);
+   loadImage.classList.remove('on');
 };
 
 document.querySelector('.js-view-shopping-list').addEventListener(
