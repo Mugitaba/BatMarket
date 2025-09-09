@@ -7,7 +7,7 @@ from wolt import get_wolt_prices as wolt_get_prices
 from victory import get_victory_files as victory_get_prices
 from shufersal import get_perm_prices as shufersal_get_prices
 from carfur import get_perm_prices as carfur_get_prices
-from optimal_cart_calculation import get_high_gap_ane_unique_items
+from optimal_cart_calculation import get_optimal_cart
 import image_scraper
 
 gz_file_path = 'data_files/unified_data'
@@ -109,16 +109,16 @@ def make_list_of_prices_per_code(store_file_path, store, search_item_code, price
                     price = normal_price * number_of_items
 
                 if 'productCode' in prices_dict.keys() and prices_dict['productCode'] == search_item_code:
-                    prices_dict[store] = price
+                    prices_dict['stores'][store] = price
                     return prices_dict
 
                 if 'productCode' in prices_dict.keys() and prices_dict['productCode'] == search_item_code:
-                    prices_dict[store] = price
+                    prices_dict['stores'][store] = price
                 else:
                     prices_dict = {
                         'productCode': search_item_code,
                         'productName': split_line[1],
-                        store: price
+                        'stores': {store: price}
                     }
     return prices_dict
 
@@ -292,7 +292,7 @@ def get_optimal_carts():
             'qty': item['qty']
         }
         )
-    optimal_cart = get_high_gap_ane_unique_items(price_list, search_by_code)
+    optimal_cart = get_optimal_cart(price_list, search_by_code)
     return jsonify(optimal_cart) if optimal_cart else jsonify({})
 
 

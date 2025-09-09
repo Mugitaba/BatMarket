@@ -30,18 +30,19 @@ function numerifyCost(cost) {
 };
 
 data.forEach((item) => {
-    sumWolt += numerifyCost(item.wolt * 100);
-    sumVictory += numerifyCost(item.victory * 100);
-    sumShufersal += numerifyCost(item.shufersal * 100);
-    sumCarfur += numerifyCost(item.carfur * 100);
+    console.log(item)
+    sumWolt += numerifyCost(item['stores'].wolt * 100);
+    sumVictory += numerifyCost(item['stores'].victory * 100);
+    sumShufersal += numerifyCost(item['stores'].shufersal * 100);
+    sumCarfur += numerifyCost(item['stores'].carfur * 100);
 
     if (item.productName) {
         tableBody.innerHTML += `
         <tr>
-            <td class="wolt">${numerifyCost(item.wolt).toFixed(2) || '---'}</td>
-            <td class="victory">${numerifyCost(item.victory).toFixed(2) || '---'}</td>
-            <td class="shufersal">${numerifyCost(item.shufersal).toFixed(2) || '---'}</td>
-            <td class="carfur">${numerifyCost(item.carfur).toFixed(2) || '---'}</td>
+            <td class="wolt">${numerifyCost(item['stores'].wolt).toFixed(2) || '---'}</td>
+            <td class="victory">${numerifyCost(item['stores'].victory).toFixed(2) || '---'}</td>
+            <td class="shufersal">${numerifyCost(item['stores'].shufersal).toFixed(2) || '---'}</td>
+            <td class="carfur">${numerifyCost(item['stores'].carfur).toFixed(2) || '---'}</td>
             <td>${item.productName || '---'}</td>
         </tr>
         `

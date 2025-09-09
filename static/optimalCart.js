@@ -1,6 +1,7 @@
 const JSONshoppingList = localStorage.getItem('shoppingList');
 const shoppingList = JSON.parse(JSONshoppingList) || [];
 
+
 const allUniqueItems = [];
 let gapForAllProduct = 0.0
 const storeNameDict = {
@@ -13,6 +14,7 @@ const mainBody = document.querySelector('.js-main-content');
 
 console.log(shoppingList);
 
+let totalSaved = 0
 
 const res = await fetch('/optimal-cart/find-optimal-carts', {
 method: 'POST',
@@ -25,83 +27,76 @@ body: JSONshoppingList
 const data = await res.json();
 console.log(data);
 
-Object.keys(data).forEach((cart)=>{
-    const storeName = cart;
-    const cheapItems = Object.keys(data[cart].cheapestItems);
-    const uniqueItems = Object.keys(data[cart].uniqueItems);
-    const priceGap = parseFloat(data[cart].totalGap);
+data.forEach((cart) => {
+  const storeName = cart[0];
+  const cartObject = cart[1]
+  const cheapItems = cartObject.cheapestProducts;
+  const totalPrice = cartObject.totalPrice;
+  const allPrices = cartObject.allProductsList;
+  const uniqueItems = cartObject.uniqueItems;
+  const itemGap = cartObject.fullGap;
 
+  totalSaved += itemGap;
 
-    gapForAllProduct += priceGap;
+  let cartBody = `
+    <div class="full-cart">
+      <h2>${storeNameDict[storeName]}</h2>
+      <ul class="item-list-${storeName}">
+  `;
 
-    console.log(storeName);
-    console.log(priceGap);
-    console.log(cheapItems);
+  cheapItems.forEach((item)=>{
+      const itemName = allPrices[item].productName;
+      const itemQty = allPrices[item].productQty;
+      const itemPrice = allPrices[item].productPrice;
 
-    mainBody.innerHTML += `
-        <h2>${storeNameDict[storeName]}</h2>
-        <ul class="item-list-${storeName}">
+      cartBody += `
+          <li><input type="checkbox">${itemQty}${itemName} (סה"כ:${itemPrice.toFixed(2)})</li>
+      `
+  });
+
+  cartBody += `
+      </ul>
+  `;
+    
+  console.log(uniqueItems);
+  if (uniqueItems) {
+
+    cartBody += `
+      <h3>מוצרים בלעדיים שקיימים רק בסופר זה:</h3>
+      <ul class="item-list-${storeName}">
     `;
-    cheapItems.forEach((item)=>{
-        const itemName = data[cart]['cheapestItems'][item]['name'];
-        const itemQty = data[cart]['cheapestItems'][item]['qty'];
-        const itemPrice = data[cart]['cheapestItems'][item]['totalPrice'];
-        const itemGap = data[cart]['cheapestItems'][item]['gap'];
-
-        mainBody.innerHTML += `
-            <li><input type="checkbox">${itemQty}${itemName} (סה"כ:${itemPrice.toFixed(2)}) - זול ב-${itemGap.toFixed(2)} מהמתחרה היקר</li>
-        `
-    });
 
     uniqueItems.forEach((item) => {
-        const itemName = data[cart]['uniqueItems'][item]['name'];
-        const itemQty = data[cart]['uniqueItems'][item]['qty'];
-        const itemPrice = data[cart]['uniqueItems'][item]['totalPrice'];
+      const itemName = allPrices[item].productName;
+      const itemQty = allPrices[item].productQty;
+      const itemPrice = allPrices[item].productPrice;
 
-        if (priceGap > 30) {
-            mainBody.innerHTML += `
-            <li><input type="checkbox">${itemQty}${itemName} (סה"כ:${itemPrice.toFixed(2)}) - אינו קיים אצל המתחרים</li>
-        `
-        } else {
-        
-        allUniqueItems.push({
-            item: {
-                'itemName': itemName,
-                'itemQty': itemQty,
-                'itemPrice': itemPrice,
-                'itemStore': cart
-            }})
-        };
-    
-    });
+      cartBody += `
+          <li><input type="checkbox">${itemQty} ${itemName} (סה"כ: ${itemPrice.toFixed(2)})</li>
+      `;
+  })
 
-    mainBody.innerHTML += `
-    </ul>
-    `;    
-});
 
-if (allUniqueItems.length > 0) {
-    mainBody.innerHTML += `
-        <h2>מוצרים בלעדיים שאין בנ"ל:</h2>
-        <ul>
-    `;
-    
-    allUniqueItems.forEach((item) => {
-        const [[key, value]] = Object.entries(item);
-        
-        mainBody.innerHTML += `
-        <li><input type="checkbox">${value['itemQty']} ${value['itemName']} (סה"כ: ${value['itemPrice'].toFixed(2)}) - ${value['itemStore']}</li>
-    `;
-    });
-
-    mainBody.innerHTML += `
+  cartBody += `
         </ul>
-    `;
+  `;
 }
 
+  cartBody += `
+        <div class="center-text boom-text">
+          <p>סל זה זול ב- ${itemGap} מהאופציה הקרובה ביותר אצל המתחרים</p>
+        </div>
+      </div>
+  `;
+
+  mainBody.innerHTML += cartBody;
+});
+
 mainBody.innerHTML += `
-        <p>בקניה זו חסכת עד ${gapForAllProduct.toFixed(2)} ש"ח. איזה גיבור!</p>
-    `;
+    <div class="boom-text huge-text">
+        <p>בקניה זו חסכת לפחות ${totalSaved} ש"ח. איזה גיבור!</p>
+    </div>
+`;
 
     
 
