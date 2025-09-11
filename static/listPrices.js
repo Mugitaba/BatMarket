@@ -5,6 +5,7 @@ console.log(shoppingList)
 
 const tableBody = document.querySelector('.js-prices-table');
 const missingItemsSection = document.querySelector('.missing-items-section')
+const headImage = document.querySelector('.js-header-pictre')
 
 let sumWolt = 0.0;
 let sumVictory = 0.0;
@@ -77,3 +78,7 @@ missingItemsSection.innerHTML += `
         פרטים חסרים: ${listOfMissingItems}
 `
 
+headImage.addEventListener('click', () => {
+    console.log('clicked')
+    window.location.href='/'
+})

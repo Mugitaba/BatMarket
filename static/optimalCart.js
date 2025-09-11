@@ -11,6 +11,7 @@ const storeNameDict = {
     'shufersal': 'שופרסל',
 };
 const mainBody = document.querySelector('.js-main-content');
+const headImage = document.querySelector('.js-header-pictre')
 
 console.log(shoppingList);
 
@@ -84,7 +85,7 @@ data.forEach((cart) => {
 
   cartBody += `
         <div class="center-text boom-text">
-          <p>סל זה זול ב- ${itemGap} מהאופציה הקרובה ביותר אצל המתחרים</p>
+          <p>סל זה זול ב- ${itemGap.toFixed(2)} מהאופציה הקרובה ביותר אצל המתחרים</p>
         </div>
       </div>
   `;
@@ -94,11 +95,16 @@ data.forEach((cart) => {
 
 mainBody.innerHTML += `
     <div class="boom-text huge-text">
-        <p>בקניה זו חסכת לפחות ${totalSaved} ש"ח. איזה גיבור!</p>
+        <p>בקניה זו חסכת לפחות ${totalSaved.toFixed(2)} ש"ח. איזה גיבור!</p>
     </div>
 `;
 
     
+
+headImage.addEventListener('click', () => {
+    console.log('clicked')
+    window.location.href='/'
+})
 
 /*
 
