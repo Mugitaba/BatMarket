@@ -78,7 +78,7 @@ def get_optimal_cart(list_of_items, search_by_code):
             unique_items = []
             all_gaps = {}
             cart_gap = 0
-            if len(sorted_shopping_carts) > 0:
+            if len(sorted_shopping_carts) > 1:
                 for cart in sorted_shopping_carts:
                     save_logs(f'checking {cart} as an alternative')
                     alt_cart = cart[1]

@@ -121,8 +121,9 @@ async function makeRunSearch(queryValue) {
                        </td>
                    </tr>`;
        };
-       getImageForCode();
    })
+
+   getImageForCode();
 
    document.querySelectorAll(".js-add-to-cart").forEach((btn) => {
        btn.addEventListener(
@@ -194,15 +195,20 @@ async function makeRunSearch(queryValue) {
 
 document.querySelector('.js-view-shopping-list').addEventListener(
    'click', () => {
+        if (shoppingList.length === 0) {
+            alert('לא הוספת עדיין מוצרים לעגלה. רשימת הקניות ריקה.')
+        } else {
        window.location.href = '/shopping-list'
-   }
+   }}
 );
 
 document.querySelector('.js-view-optimal-cart').addEventListener(
    'click', () => {
-       console.log('click')
+        if (shoppingList.length === 0) {
+            alert('לא הוספת עדיין מוצרים לעגלה. רשימת הקניות ריקה.')
+        } else {
        window.location.href = '/optimal-cart'
-   }
+   }}
 );
 
 async function getImageForCode() {
@@ -215,7 +221,9 @@ async function getImageForCode() {
        const res = await fetch(`/get-image?q=${productId}`);
        const data = await res.json();
 
-       product.innerHTML += data.image;
+       const full_element = `<img src=${data.image}>`
+       product.innerHTML += full_element;
+       console.log(data)
 
    };
 }

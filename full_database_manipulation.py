@@ -304,14 +304,14 @@ def present_site():
 @app.route('/get-image', methods=['GET'])
 def get_image():
     code = request.args.get('q', '')
-    potential_img_file = f'static/product_images/product_image_{code[-2:]}.json'
+    potential_img_file = f'static/product_images/{code[-2:]}/product_image_{code}.json'
 
     if os.path.exists(potential_img_file):
         with open(potential_img_file, 'r', encoding='utf-8') as image_file:
             saved_dict = json.load(image_file)
             if code in saved_dict.keys():
                 return {'image': saved_dict[code]}
-    return {'image': image_scraper.scrape_image(code)}
+    return {'image': image_scraper.get_image(code)}
 
 
 if __name__ == '__main__':
