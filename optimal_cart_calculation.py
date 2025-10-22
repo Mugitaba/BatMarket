@@ -94,8 +94,9 @@ def get_optimal_cart(list_of_items, search_by_code):
                                 unique_items.remove(product)
                             save_logs(f'found product: {product}. Gap: {gap}')
                         else:
-                            unique_items.append(product)
-                            save_logs(f'did not find product {product}')
+                            if product not in unique_items:
+                                unique_items.append(product)
+                                save_logs(f'did not find product {product}')
 
                 for key, value in all_gaps.items():
                     cart_gap += min(value)

@@ -85,7 +85,7 @@ data.forEach((cart) => {
 
   cartBody += `
         <div class="center-text boom-text">
-          <p>סל זה זול ב- ${itemGap.toFixed(2)} מהאופציה הקרובה ביותר אצל המתחרים</p>
+          <p>סך הכל לתשלום - ${totalPrice.toFixed(2)}, סל זה זול ב- ${itemGap.toFixed(2)} מהאופציה הקרובה ביותר אצל המתחרים</p>
         </div>
       </div>
   `;
@@ -112,33 +112,32 @@ data structure:
 
 {
     **store name with cheapest values (str)**: {
-        'totalGap': float, 
+        'totalPrice': float,
+        'totalGap': float,
         'hasUniqueItems': bool, 
         'uniqueItems': {},
         'cheapestItems': {
             '123456789': {
                 'name': str, 
-                'qty': int, 
-                'totalPrice': float, 
+                'qty': int,
                 'gap': float
             }, 
             '987654321': {
                 'name': str, 
-                'qty': int, 
-                'totalPrice': float, 
+                'qty': int,
                 'gap': float
             }, 
         }
     }, 
     **store name with unique values (str)**: {
+        'totalPrice': float,
         'totalGap': float, 
         'hasUniqueItems': bool, 
         'cheapestItems': {},
         'uniqueItems': {
             '192837465': {
                 'name': str, 
-                'qty': int, 
-                'totalPrice': float
+                'qty': int,
             }
         }
     }
