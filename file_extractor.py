@@ -147,6 +147,15 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
         item_date = root_data['PriceUpdateDate'].replace(',', '')
         if 'ManufactureName' in root_data.keys() and root_data['ManufactureName']:
             item_name += f' יצרן: {root_data["ManufactureName"].replace(",", "")} '
+        if 'UnitOfMeasure' in root_data.keys() and root_data['UnitOfMeasure']:
+            item_unit = root_data["UnitOfMeasure"].replace(",", "")
+            unit_price = root_data["UnitOfMeasurePrice"].replace(",", "")
+        elif 'UnitMeasure'in root_data.keys() and root_data['UnitMeasure']:
+            item_unit = root_data["UnitMeasure"].replace(",", "")
+            unit_price = root_data["UnitOfMeasurePrice"].replace(",", "")
+        else:
+            item_unit = None
+            unit_price = None
         list_index = item_code[-2:]
         list_index = '0' + list_index if len(list_index) < 2 else list_index
         temp_file = f'{gz_file_path}/temp_item_list.csv'
@@ -170,23 +179,28 @@ def save_price_list_to_file(root_datas,gz_file_path, promo):
             for line in list_of_lines:
                 break_line = line.split(',')
                 if len(break_line) == 5:
-                    temp_dict[break_line[0]] = [break_line[1], break_line[2], break_line[3], break_line[4]]
+                    temp_dict[break_line[0]] = [break_line[1], break_line[2], break_line[3], break_line[4], None, None]
+                elif len(break_line) == 7:
+                    temp_dict[break_line[0]] = [break_line[1], break_line[2], break_line[3], break_line[4], break_line[5], break_line[6]]
 
             if item_code in temp_dict:
                 save_logs('found existing code. Checking date')
                 if convert_date(item_date) > convert_date(temp_dict[item_code][2]):
+                    if not item_unit:
+                        if temp_dict[item_code][5]:
+                            item_unit = temp_dict[item_code][5]
+
                     save_logs('updating price')
-                    temp_dict[item_code] = [item_name,item_price, item_date, item_min]
+                    temp_dict[item_code] = [item_name,item_price, item_date, item_min, unit_price, item_unit]
             else:
                 save_logs('adding price')
-                temp_dict[item_code] = [item_name, item_price, item_date, item_min]
-
+                temp_dict[item_code] = [item_name, item_price, item_date, item_min, unit_price, item_unit]
 
             file_to_update.seek(0)
             file_to_update.truncate()
 
             for key, value in temp_dict.items():
-                file_to_update.write(f'{key},{value[0]},{value[1]},{value[2]},{value[3]}\n')
+                file_to_update.write(f'{key},{value[0]},{value[1]},{value[2]},{value[3]},{value[4]},{value[5]}\n')
 
 def unify_promos_and_prices(gz_file_path):
     # Results table headers: Code, Name, Price, DiscountPricePerTotal, ItemsPerDiscount, DiscountPricePerItem, UpdateDate, FileUpdateDate

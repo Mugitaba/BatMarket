@@ -4,7 +4,6 @@ import requests
 import xmltodict
 import all_supers
 from save_results import save_logs
-import os
 import datetime
 
 shufersal = all_supers.shufersal

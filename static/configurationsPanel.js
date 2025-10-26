@@ -22,6 +22,7 @@ async function runScrapeAllSources() {
             statusParegraph.innerHTML = `
             Scrape failed :(
         `;
+        console.log(res);
         };
     } else {
         statusParegraph.innerHTML = `
