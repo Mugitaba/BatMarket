@@ -27,19 +27,6 @@ The goal is to provide a straightforward, easy-to-use interface for price compar
 - **Frontend:** HTML, CSS, JavaScript  
 - **Data Handling:** Python scripts for data fetching and formatting  
 
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-Make sure you have **Python 3.x** installed.
-
-### Installation
-Clone this repository:
-   ```bash
-   git clone https://github.com/Mugitaba/BatMarket.git
-   cd BatMarket 
-```
 
 ### 📬 Contact
 This project is not meant for commercial use, it is just a pet-project to hone my coding skills. 
